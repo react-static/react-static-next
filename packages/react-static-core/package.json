@@ -1,0 +1,21 @@
+{
+  "name": "@react-static/core",
+  "description": "A progressive static site generator for React",
+  "version": "8.0.0",
+  "license": "MIT",
+  "repository": "https://github.com/react-static/react-static",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">= 10.16.3"
+  },
+  "scripts": {
+    "build": "yarn babel src --out-dir dist --extensions \".ts,.tsx\"",
+    "watch": "yarn build --watch",
+    "lint": "eslint --ext .ts --ext .tsx --config node_modules/@react-static/toolchain/.eslintrc.json",
+    "lint:types": "yarn tsc --p node_modules/@react-static/toolchain/tsconfig.json",
+    "build:declarations": "yarn tsc --emitDeclarationOnly --p node_modules/@react-static/toolchain/tsconfig.d.json"
+  },
+  "devDependencies": {
+    "@react-static/toolchain": "file:..\\react-static-toolchain"
+  }
+}

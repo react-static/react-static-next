@@ -1,0 +1,6 @@
+{
+  "extends": "../react-static-toolchain/tsconfig.json",
+  "include": [
+    "./src"
+  ]
+}
