@@ -1,0 +1,299 @@
+import path from "path"
+import fs from "fs"
+import chokidar from "chokidar"
+
+// the default static.config.js location
+const CONFIG_PATH_LOCATIONS = [
+  path.resolve(process.cwd(), "static.config.js"),
+  path.resolve(process.cwd(), "static.config.ts")
+]
+
+// Retrieves the static.config.js from the current project directory
+export default function subscribeToConfig(
+  state: ReactStatic.State,
+  callback: ReactStatic.ConfigCallback
+): ReactStatic.Subscription {
+  const resolvedPath = CONFIG_PATH_LOCATIONS.filter(Boolean)[0]
+  if (!resolvedPath) {
+    console.log(
+      "static.config.js not found. Restart the server if you add this file."
+    )
+
+    callback(buildConfig(state, {}))
+    return () => {}
+  }
+
+  state = buildConfigFromPath(state, resolvedPath)
+
+  if (state.stage !== "dev") {
+    callback(state)
+    return () => {}
+  }
+
+  const watcher = chokidar
+    .watch(resolvedPath, {
+      ignoreInitial: true
+    })
+    .on("all", async () => {
+      console.log("")
+      console.log(`Updating static.config.js`)
+      state = buildConfigFromPath(state, resolvedPath)
+      callback(state)
+    })
+
+  return () => watcher.close()
+}
+
+function buildConfigFromPath(
+  state: ReactStatic.State,
+  configPath: string
+): ReactStatic.State {
+  delete require.cache[configPath]
+  const config = require(configPath).default
+  return buildConfig(state, config)
+}
+
+export function buildConfig(
+  state: ReactStatic.State,
+  config: Partial<ReactStatic.AppConfig> = {}
+) {
+  // Default Paths
+  const paths = {
+    root: path.resolve(process.cwd()),
+    src: "src",
+    dist: "dist",
+    temp: "tmp",
+    buildArtifacts: "artifacts",
+    devDist: "tmp/dev-server",
+    public: "public",
+    plugins: "plugins",
+    pages: "src/pages",
+    nodeModules: "node_modules",
+    assets: "",
+    ...(config.paths || {})
+  }
+
+  // Use the root to resolve all other relative paths
+  const resolvePath = (relativePath: string) =>
+    path.resolve(paths.root, relativePath)
+
+  // Resolve and replace all pathss
+  const DIST =
+    process.env.REACT_STATIC_ENV === "development"
+      ? resolvePath(paths.devDist || paths.dist)
+      : resolvePath(paths.dist)
+
+  const resolvedPaths = {
+    ROOT: paths.root,
+    SRC: resolvePath(paths.src),
+    DIST,
+    PLUGINS: resolvePath(paths.plugins),
+    TEMP: resolvePath(paths.temp),
+    ARTIFACTS: resolvePath(paths.buildArtifacts),
+    PUBLIC: resolvePath(paths.public),
+    NODE_MODULES: resolvePath(paths.nodeModules),
+    PACKAGE: resolvePath("package.json"),
+    HTML_TEMPLATE: path.join(DIST, "index.html")
+  }
+
+  // Add the project root as a plugin. This allows the dev
+  // to use the plugin api directory in their project if they want
+  const plugins = [...(config.plugins || []), resolvedPaths.ROOT]
+
+  const platformConfig: ReactStatic.PlatformConfig = {
+    // Defaults
+    getSiteData: () => ({}),
+    prefetchRate: 5,
+    maxThreads: Infinity,
+    disableRoutePrefixing: false,
+    outputFileRate: 100,
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    getRoutes: async () => [{ paths: "/" }],
+    minLoadTime: 200,
+    disablePreload: false,
+    disableRuntime: false,
+    preloadPollInterval: 300,
+    productionSourceMaps: false,
+    entry: "index.js",
+
+    // Config Overrides
+    ...config,
+
+    // Materialized Overrides
+    paths,
+    plugins,
+    siteRoot,
+    basePath,
+    publicPath,
+    assetsPath,
+    extractCssChunks: config.extractCssChunks || false,
+    inlineCss: config.inlineCss || false,
+    babelExcludes: config.babelExcludes || [],
+    devServer: {
+      host: "localhost",
+      port: 3000,
+      ...(config.devServer || {})
+    },
+
+    terser: {
+      ...(config.terser || {}),
+      terserOptions: {
+        ...config
+      }
+    }
+  }
+
+  config.terser = config.terser || {}
+  config.terser.terserOptions = config.terser.terserOptions || {}
+  config.terser.terserOptions.mangle = config.terser.terserOptions.mangle || {}
+  config.terser.terserOptions.parse = config.terser.terserOptions.parse || {}
+  config.terser.terserOptions.compress =
+    config.terser.terserOptions.compress || {}
+  config.terser.terserOptions.output = config.terser.terserOptions.output || {}
+
+  // Set env variables to be used client side
+  process.env.REACT_STATIC_MIN_LOAD_TIME = config.minLoadTime
+  process.env.REACT_STATIC_PREFETCH_RATE = config.prefetchRate
+  process.env.REACT_STATIC_DISABLE_ROUTE_PREFIXING =
+    config.disableRoutePrefixing
+  process.env.REACT_STATIC_DISABLE_PRELOAD = config.disablePreload
+  process.env.REACT_STATIC_DISABLE_RUNTIME = config.disableRuntime
+  process.env.REACT_STATIC_PRELOAD_POLL_INTERVAL = config.preloadPollIntervalw
+
+  process.env.REACT_STATIC_ROOT_PATH_READ_ONLY = paths.ROOT
+
+  process.env.REACT_STATIC_TEMPLATES_PATH = nodePath.join(
+    paths.ARTIFACTS,
+    "react-static-templates.js"
+  )
+  process.env.REACT_STATIC_PLUGINS_PATH = nodePath.join(
+    paths.ARTIFACTS,
+    "react-static-browser-plugins.js"
+  )
+  process.env.REACT_STATIC_UNIVERSAL_PATH = require.resolve(
+    "react-universal-component"
+  )
+
+  const resolvePlugin = originalLocation => {
+    let options = {}
+    if (Array.isArray(originalLocation)) {
+      options = originalLocation[1] || {}
+      originalLocation = originalLocation[0]
+    }
+
+    const location = [
+      () => {
+        // Absolute require
+        try {
+          const found = require.resolve(originalLocation)
+          return found.includes(".") ? path.resolve(found, "../") : found
+        } catch (err) {
+          //
+        }
+      },
+      () => {
+        // Absolute
+        if (fs.existsSync(originalLocation)) {
+          return originalLocation
+        }
+      },
+      () => {
+        // Plugins Dir
+        const found = path.resolve(resolvedPaths.PLUGINS, originalLocation)
+        if (fs.existsSync(found)) {
+          return found
+        }
+      },
+      () => {
+        // Plugins Dir require
+        try {
+          const found = resolveFrom(resolvedPaths.PLUGINS, originalLocation)
+          return found.includes(".") ? path.resolve(found, "../") : found
+        } catch (err) {
+          //
+        }
+      },
+      () => {
+        // CWD
+        const found = path.resolve(process.cwd(), originalLocation)
+        if (fs.existsSync(found)) {
+          return found
+        }
+      },
+      () => {
+        // CWD require
+        try {
+          const found = resolveFrom(process.cwd(), originalLocation)
+          return found.includes(".") ? path.resolve(found, "../") : found
+        } catch (err) {
+          //
+        }
+      },
+      () => {
+        if (process.env.NODE_ENV === "test") {
+          // Allow plugins to be mocked
+          return "mock-plugin"
+        }
+      }
+    ].reduce((prev, curr) => prev || curr(), null)
+
+    // TODO: We have to do this because we don't have a good mock for process.cwd() :(
+    if (!location) {
+      throw new Error(
+        `Could not find a plugin directory for the plugin: "${originalLocation}". We must bail!`
+      )
+    }
+
+    let nodeLocation: string | null = path.join(location, "node.api.js")
+    let browserLocation: string | null = path.join(location, "browser.api.js")
+
+    // Detect if the node plugin entry exists, and provide the nodeResolver to it
+    nodeLocation = fs.existsSync(nodeLocation) ? nodeLocation : null
+
+    // Detect if the browser plugin entry exists, and provide the nodeResolver to it
+    browserLocation = fs.existsSync(browserLocation) ? browserLocation : null
+
+    let buildPluginHooks = () => ({})
+
+    try {
+      // Get the hooks for the node api
+      if (nodeLocation) {
+        buildPluginHooks = require(nodeLocation).default
+      } else if (originalLocation !== resolvedPaths.ROOT && !browserLocation) {
+        throw new Error(
+          `Could not find a valid node.api.js or browser.api.js plugin file in "${location}"`
+        )
+      }
+
+      const resolvedPlugin = {
+        location,
+        nodeLocation,
+        browserLocation,
+        options,
+        hooks: buildPluginHooks(options) || {}
+      }
+
+      validatePlugin(resolvedPlugin)
+
+      // Recursively resolve plugins
+      if (resolvedPlugin.plugins) {
+        resolvedPlugin.plugins = resolvedPlugin.plugins.map(resolvePlugin)
+      }
+
+      return resolvedPlugin
+    } catch (err) {
+      console.error(
+        `The following error occurred in the plugin: "${originalLocation}"`
+      )
+      throw err
+    }
+  }
+
+  state = {
+    ...state,
+    plugins: config.plugins.map(resolvePlugin),
+    config
+  }
+
+  return corePlugins.afterGetConfig(state)
+}

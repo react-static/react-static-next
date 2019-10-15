@@ -1,0 +1,52 @@
+import path from 'path'
+
+console.log(path.resolve(process.cwd()))
+
+import subscribeToConfig from '../tasks/subscribeToConfig'
+import subscribeToRoutes from '../tasks/subscribeToRoutes'
+import getBrowserPlugins from '../tasks/getBrowserPlugins'
+import getTemplates from '../tasks/getTemplates'
+import createIndexPlaceholder from '../tasks/createIndexPlaceholder'
+
+import runDevServer from '../runDevServer'
+
+
+async function onConfigChanged(state: ReactStatic.State): Promise<ReactStatic.Subscription> {
+  // Cancels any previous subscription, so this never runs twice
+  if (state.subscription) {
+    state.subscription.unsubscribe()
+  }
+
+  state = await createIndexPlaceholder(state)
+  state = await getBrowserPlugins(state)
+
+  return subscribeToRoutes(state, onRoutesChanged)
+}
+
+async function onRoutesChanged(state: ReactStatic.State): Promise<void> {
+  state = await getTemplates(state)
+
+  await runDevServer(state)
+}
+
+async function start(state: ReactStatic.State): Promise<void> {
+  // ensure ENV variables are set
+  if (typeof process.env.NODE_ENV === 'undefined') {
+    process.env.NODE_ENV = 'development'
+  }
+
+  process.env.REACT_STATIC_ENV = 'development'
+  process.env.BABEL_ENV = 'development'
+
+  state.stage = 'dev'
+
+  console.log(`Starting Development Server...`)
+  // Use a callback (a subscription)
+  state.subscription = subscribeToConfig(state, onConfigChanged)
+
+  await new Promise(() => {
+    // Do nothing indefinitely, the user must exit this command
+  })
+}
+
+export default start

@@ -9,13 +9,29 @@
     "node": ">= 10.16.3"
   },
   "scripts": {
-    "build": "yarn babel src --out-dir dist --extensions \".ts,.tsx\"",
+    "build": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --delete-dir-on-start --root-mode upward --no-comments",
     "watch": "yarn build --watch",
-    "lint": "eslint --ext .ts --ext .tsx --config node_modules/@react-static/toolchain/.eslintrc.json",
-    "lint:types": "yarn tsc --p node_modules/@react-static/toolchain/tsconfig.json",
-    "build:declarations": "yarn tsc --emitDeclarationOnly --p node_modules/@react-static/toolchain/tsconfig.d.json"
+    "lint": "eslint --ext .ts --ext .tsx --config ../../.eslintrc.json",
+    "lint:types": "yarn tsc --p ../../tsconfig.json",
+    "build:declarations": "yarn tsc --emitDeclarationOnly --p ../../tsconfig.d.json"
   },
   "devDependencies": {
-    "@react-static/toolchain": "file:..\\react-static-toolchain"
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "@types/webpack-env": "^1.14.1",
+    "@typescript-eslint/eslint-plugin": "^2.4.0",
+    "@typescript-eslint/parser": "^2.4.0",
+    "babel-jest": "^24.9.0",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.5.1",
+    "eslint-config-prettier": "^6.4.0",
+    "eslint-plugin-import": "^2.18.2",
+    "prettier": "^1.18.2",
+    "react-error-overlay": "^6.0.3",
+    "sockjs-client": "^1.4.0",
+    "typescript": "^3.6.4"
   }
 }

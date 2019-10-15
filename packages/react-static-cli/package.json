@@ -1,24 +1,57 @@
 {
-  "name": "@react-static/cli",
-  "description": "A progressive static site generator for React",
-  "version": "8.0.0",
-  "license": "MIT",
-  "repository": "https://github.com/react-static/react-static",
-  "main": "dist/index.js",
-  "engines": {
-    "node": ">= 10.16.3"
-  },
-  "bin": {
-    "react-static": "./bin/react-static"
-  },
-  "scripts": {
-    "build": "yarn babel src --out-dir dist --extensions \".ts,.tsx\"",
-    "watch": "yarn build --watch",
-    "lint": "eslint .",
-    "lint:types": "yarn tsc",
-    "build:declarations": "yarn tsc --emitDeclarationOnly"
-  },
-  "devDependencies": {
-    "@react-static/toolchain": "file:..\\react-static-toolchain"
-  }
+	"name": "@react-static/cli",
+	"description": "A progressive static site generator for React",
+	"version": "8.0.0",
+	"license": "MIT",
+	"repository": "https://github.com/react-static/react-static",
+	"bin": {
+		"react-static": "dist/cli.js"
+	},
+	"engines": {
+		"node": ">=8"
+	},
+	"scripts": {
+		"build": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --delete-dir-on-start --root-mode upward --no-comments",
+		"watch": "yarn build --watch",
+		"lint": "eslint . && yarn lint:types",
+		"lint:types": "yarn tsc",
+		"build:declarations": "yarn tsc --emitDeclarationOnly",
+		"pretest:ci": "yarn build",
+		"test:ci": "yarn test",
+		"posttest:ci": "yarn lint",
+		"test": "yarn jest",
+		"test:watch": "yarn test --watch"
+	},
+	"files": [
+		"dist/cli.js",
+		"dist/ui.js"
+	],
+	"dependencies": {
+		"ink": "^2.5.0",
+		"meow": "^5.0.0",
+		"prop-types": "^15.7.2",
+		"react": "^16.10.2"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.6.4",
+		"@babel/preset-env": "^7.6.3",
+		"@babel/preset-react": "^7.6.3",
+		"@babel/preset-typescript": "^7.6.0",
+		"@types/jest": "^24.0.19",
+		"@types/meow": "5.0.0",
+		"@typescript-eslint/eslint-plugin": "^2.4.0",
+		"@typescript-eslint/parser": "^2.4.0",
+		"babel-jest": "^24.9.0",
+		"chalk": "^2.4.2",
+		"cross-env": "^6.0.3",
+		"eslint": "^6.5.1",
+		"eslint-config-prettier": "^6.4.0",
+		"eslint-plugin-import": "^2.18.2",
+		"eslint-plugin-react": "^7.16.0",
+		"eslint-plugin-react-hooks": "^2.1.2",
+		"ink-testing-library": "^1.0.2",
+		"jest": "^24.9.0",
+		"prettier": "^1.18.2",
+		"typescript": "^3.6.4"
+	}
 }

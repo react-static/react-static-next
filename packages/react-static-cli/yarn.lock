@@ -847,26 +847,6 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@react-static/toolchain@file:../react-static-toolchain":
-  version "0.1.0"
-  dependencies:
-    "@babel/cli" "^7.5.5"
-    "@babel/core" "^7.5.5"
-    "@babel/preset-env" "^7.5.5"
-    "@babel/preset-typescript" "^7.3.3"
-    "@types/jest" "^24.0.18"
-    "@types/node" "^12.7.3"
-    "@typescript-eslint/eslint-plugin" "^2.0.0"
-    "@typescript-eslint/parser" "^2.0.0"
-    babel-jest "^24.9.0"
-    core-js "^3.2.1"
-    eslint "^6.3.0"
-    eslint-config-prettier "^6.1.0"
-    eslint-plugin-import "^2.18.2"
-    jest "^24.9.0"
-    prettier "^1.18.2"
-    typescript "^3.6.2"
-
 "@types/babel__core@^7.1.0":
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.2.tgz#608c74f55928033fce18b99b213c16be4b3d114f"

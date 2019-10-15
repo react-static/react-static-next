@@ -1,0 +1,39 @@
+{
+  "name": "@react-static/sample",
+  "description": "A progressive static site generator for React",
+  "version": "8.0.0",
+  "license": "MIT",
+  "repository": "https://github.com/react-static/react-static",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">= 10.16.3"
+  },
+  "scripts": {
+    "build": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --delete-dir-on-start --root-mode upward --no-comments",
+    "watch": "yarn build --watch",
+    "lint": "eslint . && yarn lint:types",
+    "lint:types": "yarn tsc",
+    "build:declarations": "yarn tsc --emitDeclarationOnly",
+    "pretest:ci": "yarn build",
+    "test:ci": "yarn test",
+    "posttest:ci": "yarn lint",
+    "test": "yarn jest",
+    "test:watch": "yarn test --watch"
+  },
+  "dependencies": {
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.19",
+    "@babel/cli": "^7.6.4",
+    "@babel/preset-react": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "@testing-library/react": "^9.3.0",
+    "@react-static/cli": "^8.0.0",
+    "@react-static/core": "^8.0.0",
+    "@types/react-dom": "16.9.2",
+    "babel-jest": "^24.9.0",
+    "jest": "~24.9.0"
+  }
+}

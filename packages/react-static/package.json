@@ -1,0 +1,24 @@
+{
+  "name": "react-static",
+  "description": "A progressive static site generator for React",
+  "version": "8.0.0",
+  "license": "MIT",
+  "repository": "https://github.com/react-static/react-static",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">= 10.16.3"
+  },
+  "scripts": {
+    "build": ""
+  },
+  "bin": {
+    "react-static": "./bin/react-static"
+  },
+  "peerDependencies": {
+    "@react-static/cli": "^8.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@react-static/cli": "^8.0.0"
+  }
+}

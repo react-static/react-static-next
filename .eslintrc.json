@@ -2,7 +2,6 @@
   "root": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json",
     "ecmaFeatures": {
       "jsx": true
     },
@@ -11,34 +10,44 @@
   },
   "env": {
     "node": true,
-    "es6": true
+    "es6": true,
+    "browser": true
   },
   "extends": [
     "eslint:recommended",
+    "plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
     "prettier/@typescript-eslint",
     "prettier/babel",
-    "prettier/react"
+    "prettier/react",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "plugins": [
-    "@typescript-eslint",
-  ],
+  "plugins": ["@typescript-eslint"],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": [
-      "warn", {
+      "warn",
+      {
         "allowExpressions": false,
         "allowTypedFunctionExpressions": true,
         "allowHigherOrderFunctions": true
       }
     ],
     "@typescript-eslint/explicit-member-accessibility": [
-      "warn", {
+      "warn",
+      {
         "accessibility": "no-public",
         "overrides": {
           "accessors": "explicit",
@@ -52,16 +61,22 @@
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-parameter-properties": [
-      "warn", {
+      "warn",
+      {
         "allows": [
-          "private", "protected", "public",
-          "private readonly", "protected readonly", "public readonly"
+          "private",
+          "protected",
+          "public",
+          "private readonly",
+          "protected readonly",
+          "public readonly"
         ]
       }
     ],
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-use-before-define": [
-      "error", {
+      "error",
+      {
         "functions": false,
         "typedefs": false
       }
