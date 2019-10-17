@@ -33,5 +33,9 @@
     "react-error-overlay": "^6.0.3",
     "sockjs-client": "^1.4.0",
     "typescript": "^3.6.4"
+  },
+  "dependencies": {
+    "core-js": "3",
+    "hard-rejection": "^2.1.0"
   }
 }

@@ -17,7 +17,9 @@
   "peerDependencies": {
     "@react-static/cli": "^8.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "core-js": "3"
+  },
   "devDependencies": {
     "@react-static/cli": "^8.0.0"
   }

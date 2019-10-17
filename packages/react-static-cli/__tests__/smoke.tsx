@@ -1,6 +1,7 @@
 import React from "react"
 import chalk from "chalk"
 import { render } from "ink-testing-library"
+
 import { App } from "../src/ui"
 
 describe("greeting", () => {
