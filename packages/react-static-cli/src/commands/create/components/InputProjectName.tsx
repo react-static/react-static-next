@@ -13,7 +13,7 @@ export function InputProjectName({
   onSubmit
 }: InputProjectNameProps): JSX.Element {
   return (
-    <Box>
+    <Box marginTop={1}>
       <Box
         marginRight={Math.max(0, "package manager".length - "name".length) + 3}
       >

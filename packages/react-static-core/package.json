@@ -1,9 +1,11 @@
 {
   "name": "@react-static/core",
-  "description": "A progressive static site generator for React",
-  "version": "8.0.0",
+  "description": "Core package for react-static projects",
+  "version": "0.1.0",
   "license": "MIT",
-  "repository": "https://github.com/react-static/react-static",
+  "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-core",
+  "homepage": "http://react-static.js.org",
   "main": "dist/index.js",
   "engines": {
     "node": ">= 10.16.3"
@@ -13,7 +15,9 @@
     "watch": "yarn build --watch",
     "lint": "eslint --ext .ts --ext .tsx --config ../../.eslintrc.json",
     "lint:types": "yarn tsc --p ../../tsconfig.json",
-    "build:declarations": "yarn tsc --emitDeclarationOnly --p ../../tsconfig.d.json"
+    "build:declarations": "yarn tsc --emitDeclarationOnly --p ../../tsconfig.d.json",
+    "test": "echo 'Nothing to test yet'",
+    "test:watch": "yarn test"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
@@ -35,7 +39,7 @@
     "typescript": "^3.6.4"
   },
   "dependencies": {
-    "core-js": "3",
+    "core-js": "~3.3.2",
     "hard-rejection": "^2.1.0"
   }
 }

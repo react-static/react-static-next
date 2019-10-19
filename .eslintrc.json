@@ -1,85 +1,121 @@
 {
   "root": true,
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    },
-    "ecmaVersion": 2018,
-    "sourceType": "module"
-  },
+
   "env": {
     "node": true,
     "es6": true,
-    "browser": true
+    "browser": true,
+    "jest": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "prettier/@typescript-eslint",
-    "prettier/babel",
-    "prettier/react",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:import/typescript"
-  ],
+
   "settings": {
     "react": {
       "version": "detect"
     }
   },
+
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "plugins": ["@typescript-eslint"],
-  "rules": {
-    "@typescript-eslint/explicit-function-return-type": [
-      "warn",
-      {
-        "allowExpressions": false,
-        "allowTypedFunctionExpressions": true,
-        "allowHigherOrderFunctions": true
-      }
-    ],
-    "@typescript-eslint/explicit-member-accessibility": [
-      "warn",
-      {
-        "accessibility": "no-public",
-        "overrides": {
-          "accessors": "explicit",
-          "constructors": "no-public",
-          "methods": "explicit",
-          "properties": "explicit",
-          "parameterProperties": "off"
-        }
-      }
-    ],
-    "@typescript-eslint/indent": ["error", 2],
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-parameter-properties": [
-      "warn",
-      {
-        "allows": [
-          "private",
-          "protected",
-          "public",
-          "private readonly",
-          "protected readonly",
-          "public readonly"
+
+  "overrides": [
+    {
+      "parser": "@typescript-eslint/parser",
+      "files": ["**/*.ts?(x)"],
+      "parserOptions": {
+        "ecmaFeatures": {
+          "jsx": true
+        },
+        "ecmaVersion": 2018,
+        "sourceType": "module"
+      },
+      "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier",
+        "prettier/@typescript-eslint",
+        "prettier/babel",
+        "prettier/react",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+      ],
+
+      "plugins": ["@typescript-eslint"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": [
+          "warn",
+          {
+            "allowExpressions": false,
+            "allowTypedFunctionExpressions": true,
+            "allowHigherOrderFunctions": true
+          }
+        ],
+        "@typescript-eslint/explicit-member-accessibility": [
+          "warn",
+          {
+            "accessibility": "no-public",
+            "overrides": {
+              "accessors": "explicit",
+              "constructors": "no-public",
+              "methods": "explicit",
+              "properties": "explicit",
+              "parameterProperties": "off"
+            }
+          }
+        ],
+        "@typescript-eslint/indent": ["error", 2],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-parameter-properties": [
+          "warn",
+          {
+            "allows": [
+              "private",
+              "protected",
+              "public",
+              "private readonly",
+              "protected readonly",
+              "public readonly"
+            ]
+          }
+        ],
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-use-before-define": [
+          "error",
+          {
+            "functions": false,
+            "typedefs": false
+          }
         ]
       }
-    ],
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-use-before-define": [
-      "error",
-      {
-        "functions": false,
-        "typedefs": false
-      }
-    ]
-  }
+    },
+    {
+      "files": ["**/*.js?(x)"],
+      "parser": "babel-eslint",
+      "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module",
+        "ecmaFeatures": {
+          "jsx": true
+        }
+      },
+
+      "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "prettier",
+        "prettier/babel",
+        "prettier/react",
+        "plugin:import/errors",
+        "plugin:import/warnings"
+      ],
+
+      "plugins": [],
+
+      "rules": {}
+    }
+  ]
 }

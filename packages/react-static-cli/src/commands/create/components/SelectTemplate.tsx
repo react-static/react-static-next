@@ -50,7 +50,7 @@ export function SelectTemplate({ onSelect }: SelectTemplateProps): JSX.Element {
   )
 
   return (
-    <Box flexDirection="row">
+    <Box flexDirection="row" marginTop={1}>
       <Box marginRight={"package manager".length - "template".length + 1}>
         <Color cyanBright>
           <Text>template</Text>

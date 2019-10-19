@@ -1,13 +1,13 @@
 {
-  "name": "@react-static/cli",
-  "description": "A progressive static site generator for React",
-  "version": "8.0.0",
+  "name": "@react-static/scripts",
+  "version": "0.1.0",
+  "description": "CLI scripts for react-static projects. This is meant to be added to the devDependencies.",
   "license": "MIT",
   "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
-  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-cli",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-scripts",
   "homepage": "http://react-static.js.org",
   "bin": {
-    "react-static": "dist/cli.js"
+    "react-static-scripts": "dist/cli.js"
   },
   "engines": {
     "node": ">=8"
@@ -24,6 +24,12 @@
   "files": [
     "dist/*"
   ],
+  "peerDependencies": {
+    "@react-static/core": "~0.1.0",
+    "react": "16.x",
+    "react-dom": "16.x",
+    "@testing-library/react": "9.x"
+  },
   "dependencies": {
     "core-js": "^3.3.2",
     "cross-spawn": "^7.0.1",
@@ -38,13 +44,14 @@
     "lodash.padend": "^4.6.1",
     "lodash.trimstart": "^4.5.1",
     "meow": "^5.0.0",
-    "pacote": "^9.5.8",
     "react": "^16.10.2",
-    "semver": "^6.3.0",
-    "tar": "^5.0.5",
-    "wordwrap": "^1.0.0"
+    "wordwrap": "^1.0.0",
+    "@react-static/eslint-config": "~0.1.0",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
   },
   "devDependencies": {
+    "@react-static/core": "~0.1.0",
     "@babel/core": "^7.6.4",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-react": "^7.6.3",
@@ -53,11 +60,9 @@
     "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.19",
     "@types/meow": "5.0.0",
-    "@types/pacote": "^9.5.0",
-    "@types/semver": "^6.0.2",
-    "@types/tar": "^4.0.3",
     "@typescript-eslint/eslint-plugin": "^2.4.0",
     "@typescript-eslint/parser": "^2.4.0",
+    "@testing-library/react": "9.x",
     "babel-jest": "^24.9.0",
     "chalk": "^2.4.2",
     "cross-env": "^6.0.3",

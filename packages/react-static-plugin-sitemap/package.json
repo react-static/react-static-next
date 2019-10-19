@@ -1,0 +1,24 @@
+{
+  "name": "@react-static/plugin-sitemap",
+  "description": "Plugin for react-static projects. Adds sitemap generation to the export lifecycle.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-plugin-sitemap",
+  "homepage": "http://react-static.js.org",
+  "scripts": {
+    "build": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --delete-dir-on-start --root-mode upward --no-comments",
+    "watch": "yarn build --watch",
+    "lint": "eslint . && yarn lint:types",
+    "lint:types": "yarn tsc",
+    "build:declarations": "yarn tsc --emitDeclarationOnly",
+    "test": "yarn jest",
+    "test:watch": "yarn test --watch"
+  },
+  "peerDependencies": {
+    "@react-static/core": "~0.1.0"
+  },
+  "devDependencies": {
+    "@react-static/core": "~0.1.0"
+  }
+}

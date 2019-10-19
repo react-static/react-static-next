@@ -3,24 +3,18 @@
   "description": "A progressive static site generator for React",
   "version": "8.0.0",
   "license": "MIT",
+  "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
   "repository": "https://github.com/react-static/react-static",
-  "main": "dist/index.js",
+  "homepage": "http://react-static.js.org",
   "engines": {
     "node": ">= 10.16.3"
   },
   "scripts": {
-    "build": ""
-  },
-  "bin": {
-    "react-static": "./bin/react-static"
-  },
-  "peerDependencies": {
-    "@react-static/cli": "^8.0.0"
-  },
-  "dependencies": {
-    "core-js": "3"
-  },
-  "devDependencies": {
-    "@react-static/cli": "^8.0.0"
+    "build": "echo 'react-static has nothing to build -- it is deprecated'",
+    "watch": "yarn build --watch",
+    "test": "echo 'react-static has nothing to test -- it is deprecated'",
+    "test:watch": "yarn test --watch",
+    "lint": "echo 'react-static has nothing to lint -- it is deprecated'",
+    "postinstall": "echo 'use @react-static/cli' instead. Install it globally."
   }
 }

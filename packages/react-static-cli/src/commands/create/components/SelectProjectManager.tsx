@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 
 import { Box, Text, Color } from "ink"
 import SelectInput, { ItemOfSelectInput } from "ink-select-input"
+import StyledBox from "ink-box"
 
 import { detectYarn } from "../utils/detectYarn"
 
@@ -27,11 +28,13 @@ export function SelectPackageManager({
     onSelect(value ? "yarn" : "npm")
 
   return (
-    <Box flexDirection="column">
-      <Text>
-        Found Yarn {promote}. Use <Color bold>Yarn</Color> to install
-        dependencies?
-      </Text>
+    <Box flexDirection="column" marginTop={1}>
+      <StyledBox style="round" padding={1}>
+        <Text>
+          Found Yarn {promote}. Use <Color bold>Yarn</Color> to install
+          dependencies?
+        </Text>
+      </StyledBox>
       <Box flexDirection="row">
         <Box marginRight={1}>
           <Color cyanBright>package manager</Color>

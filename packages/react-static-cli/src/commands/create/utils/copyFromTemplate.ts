@@ -4,6 +4,15 @@ import path from "path"
 import fse from "fs-extra"
 import tar, { ReadEntry } from "tar"
 import { osHomeDirectory } from "./osHomeDirectory"
+import { fillInTemplate } from "./fillInTemplate"
+
+function targetPathFromName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/ |\//g, "-")
+    .replace(/[^-_a-z0-9]/g, "")
+}
 
 export async function copyFromTemplate(
   manifest: Manifest,
@@ -11,15 +20,17 @@ export async function copyFromTemplate(
   localPath: string | undefined,
   name: string
 ): Promise<string> {
-  const targetPath = path.join(process.cwd(), name)
+  const targetPath = path.join(process.cwd(), targetPathFromName(name))
 
-  return await (isLocal
+  const actualPath = await (isLocal
     ? copyLocalTemplateAppAsync(localPath as string, targetPath, name)
     : extractRemoteTemplateAppAsync(
       `${manifest.name}@${manifest.version}`,
       targetPath,
       name
     ))
+
+  return fillInTemplate(actualPath, { name })
 }
 
 async function copyLocalTemplateAppAsync(

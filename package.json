@@ -1,13 +1,14 @@
 {
   "private": true,
-  "name": "react-static",
+  "name": "@react-static/monorepo",
+  "version": "UNVERSIONED",
   "scripts": {
     "prebuild": "yarn tsc",
-    "build": "lerna run build",
+    "build": "lerna exec -- cross-env REACT_STATIC_ENV=internal yarn build",
     "lint": "yarn eslint 'packages/**/*.ts{,x}'",
     "lint:fix": "yarn lint --fix",
-    "test": "lerna run test",
-    "test:watch": "lerna run test:watch --parallel",
+    "test": "lerna exec -- cross-env REACT_STATIC_ENV=internal yarn test",
+    "test:watch": "lerna exec --parallel -- cross-env REACT_STATIC_ENV=internal yarn test:watch",
     "postinstall": "yarn build"
   },
   "devDependencies": {
@@ -21,7 +22,7 @@
     "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-react": "^7.16.0",
-    "lerna": "^3.17.0",
+    "lerna": "^3.18.1",
     "prettier": "^1.18.2",
     "typescript": "^3.6.4"
   },

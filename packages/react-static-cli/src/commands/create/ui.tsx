@@ -6,6 +6,7 @@ import StyledBox from "ink-box"
 import Spinner from "ink-spinner"
 import { Manifest } from "pacote"
 import padEnd from "lodash.padend"
+import path from "path"
 
 import { InputProjectName } from "./components/InputProjectName"
 import { ResolveTemplate } from "./components/ResolveTemplate"
@@ -91,7 +92,7 @@ function commandReducer(
     case "init": {
       const nextState: CommandState = {
         ...state,
-        name: action.name,
+        name: action.name ? normalizeName(action.name) : undefined,
         templateSpec: action.templateSpec,
         packageManager: action.yarn ? "yarn" : action.npm ? "npm" : undefined
       }
@@ -116,7 +117,7 @@ function commandReducer(
     case "set-project-name": {
       const nextState: CommandState = {
         ...state,
-        name: action.value
+        name: normalizeName(action.value)
       }
 
       return withNewQuestion(nextState)
@@ -152,6 +153,20 @@ function withNewQuestion(state: Readonly<CommandState>): CommandState {
   }
 
   return { ...state, question: "<execute>" }
+}
+
+/**
+ * Normalize a project name to something that can be used as package name and
+ * is also a valid path part. This means we'll use lower-hyphen-cased-names.
+ *
+ * @param name the non-normalised name
+ */
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/ /g, "-")
+    .replace(/[^-_a-z0-9@/]/g, "")
 }
 
 const doubleDispatch: {
@@ -355,16 +370,27 @@ function renderDone(
   __?: CreateCommandProps
 ): JSX.Element {
   return (
-    <Box flexDirection="column">
+    <Box flexDirection="column" marginTop={1}>
       <Text>
-        Your project <Color yellowBright>{state.name!}</Color> based on{" "}
+        <Color redBright>-</Color> Your project{" "}
+        <Color yellowBright>{state.name!}</Color> based on{" "}
         <Color yellowBright>{state.templateSpec!}</Color> is ready.
       </Text>
-      <StyledBox borderStyle="round" borderColor="greenBright" padding={1}>
-        <Text>
-          <Color greenBright>{state.path!}</Color>
-        </Text>
-      </StyledBox>
+      <Text>
+        <Color redBright>-</Color> Its dependencies have been installed using{" "}
+        <Color yellowBright>{state.packageManager}</Color>.
+      </Text>
+      <Text>
+        <Color redBright>-</Color> Find it at{" "}
+        <Color yellowBright>{state.path!}</Color>
+      </Text>
+      <Box marginTop={1}>
+        <StyledBox borderStyle="round" borderColor="greenBright" padding={1}>
+          <Text>
+            cd <Color greenBright>{path.basename(state.path!)}</Color>
+          </Text>
+        </StyledBox>
+      </Box>
     </Box>
   )
 }

@@ -172,11 +172,7 @@ function renderExecuteInstall(
     return null
   }
 
-  return (
-    <Text>
-      <Color redBright>{state.error.message}</Color>
-    </Text>
-  )
+  return <Text>{state.error.message}</Text>
 }
 
 function renderExecuteFinish(
