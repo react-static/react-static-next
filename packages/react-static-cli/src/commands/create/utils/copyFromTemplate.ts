@@ -6,6 +6,11 @@ import tar, { ReadEntry } from "tar"
 import { osHomeDirectory } from "./osHomeDirectory"
 import { fillInTemplate } from "./fillInTemplate"
 
+export interface CopyFromTemplateResult {
+  path: string
+  messages: readonly ReportableMessage[]
+}
+
 function targetPathFromName(name: string): string {
   return name
     .trim()
@@ -18,8 +23,9 @@ export async function copyFromTemplate(
   manifest: Manifest,
   isLocal: boolean,
   localPath: string | undefined,
-  name: string
-): Promise<string> {
+  name: string,
+  packageManager: "yarn" | "npm"
+): Promise<CopyFromTemplateResult> {
   const targetPath = path.join(process.cwd(), targetPathFromName(name))
 
   const actualPath = await (isLocal
@@ -30,7 +36,12 @@ export async function copyFromTemplate(
       name
     ))
 
-  return fillInTemplate(actualPath, { name })
+  return fillInTemplate(actualPath, {
+    name,
+    isLocal,
+    localPath,
+    packageManager
+  })
 }
 
 async function copyLocalTemplateAppAsync(
@@ -39,7 +50,6 @@ async function copyLocalTemplateAppAsync(
   _name: string
 ): Promise<string> {
   await fse.copy(sourcePath, targetPath)
-
   return targetPath
 }
 

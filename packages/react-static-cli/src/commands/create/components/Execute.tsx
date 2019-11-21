@@ -18,8 +18,9 @@ interface ExecuteProps {
 
 type ExecuteStep = "init" | "copy" | "install" | "finish"
 
-interface ExecuteState {
+interface ExecuteState extends Readonly<ExecuteState> {
   step: ExecuteStep
+  messages: readonly ReportableMessage[]
   cwd?: string
   error?: Error
 }
@@ -31,10 +32,12 @@ interface ActionInitDone {
 interface ActionCopyDone {
   type: "copy"
   cwd: string
+  messages: readonly ReportableMessage[]
 }
 
 interface ActionInstallDone {
   type: "install"
+  messages: readonly ReportableMessage[]
 }
 
 interface ActionError {
@@ -57,18 +60,27 @@ function executeReducer(
       return { ...state, step: "copy" }
     }
     case "copy": {
-      return { ...state, step: "install", cwd: action.cwd }
+      return {
+        ...state,
+        step: "install",
+        cwd: action.cwd,
+        messages: [...state.messages, ...action.messages]
+      }
     }
     case "install": {
-      return { ...state, step: "finish" }
+      return {
+        ...state,
+        step: "finish",
+        messages: [...state.messages, ...action.messages]
+      }
     }
     case "error": {
-      return { ...state, error: action.error }
+      return { ...state, error: action.error, messages: [] }
     }
   }
 }
 
-const initalState: Readonly<ExecuteState> = Object.freeze({ step: "init" })
+const initalState: ExecuteState = Object.freeze({ step: "init", messages: [] })
 const descriptions: { [K in ExecuteState["step"]]: string } = {
   init: "starting",
   copy: "setting up project",
@@ -101,11 +113,14 @@ export function Execute(props: ExecuteProps): JSX.Element {
   }
 
   return (
-    <Box>
-      <Color greenBright>
-        <Spinner type="dots" />
-      </Color>
-      {` ${descriptions[state.step]}`}
+    <Box flexDirection="column">
+      <Box>
+        <Color green>
+          <Spinner type="dots" />
+        </Color>
+        {` ${descriptions[state.step]}`}
+      </Box>
+      <Messages messages={state.messages} />
     </Box>
   )
 }
@@ -133,11 +148,12 @@ function renderExecuteCopy(
       opts.template,
       opts.isLocal,
       opts.localPath,
-      opts.name
+      opts.name,
+      opts.packageManager
     )
 
-    promise.then(outputPath => {
-      active && dispatch({ type: "copy", cwd: outputPath })
+    promise.then(({ path: outputPath, messages }) => {
+      active && dispatch({ type: "copy", cwd: outputPath, messages })
     })
 
     return (): void => {
@@ -160,7 +176,7 @@ function renderExecuteInstall(
     const promise = installDependencies(packageManager)
 
     promise
-      .then(() => active && dispatch({ type: "install" }))
+      .then(({ messages }) => active && dispatch({ type: "install", messages }))
       .catch(error => active && dispatch({ type: "error", error }))
 
     return (): void => {
@@ -185,4 +201,39 @@ function renderExecuteFinish(
   }, [onFinish])
 
   return null
+}
+
+function Messages({
+  messages
+}: {
+  messages: readonly ReportableMessage[]
+}): JSX.Element | null {
+  if (messages.length === 0) {
+    return null
+  }
+
+  return (
+    <Box flexDirection="column">
+      {messages
+        .filter(message => message.data && message.data.length > 0)
+        .map((message, index) => {
+          const value = message.data.toString().trimEnd()
+          const isMessage = message.type === "message"
+          const isWarning =
+            message.type === "error" && value.startsWith("warning")
+          const isError = message.type === "error" && !isWarning
+
+          return (
+            <Color
+              key={index}
+              gray={isMessage}
+              white={isWarning}
+              red={isError}
+            >
+              <Text>{value}</Text>
+            </Color>
+          )
+        })}
+    </Box>
+  )
 }

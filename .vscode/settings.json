@@ -2,5 +2,6 @@
   "editor.detectIndentation": false,
   "editor.tabSize": 2,
   "npm.packageManager": "yarn",
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

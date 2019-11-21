@@ -10,7 +10,7 @@ const CONFIG_PATH_LOCATIONS = [
 
 // Retrieves the static.config.js from the current project directory
 export default function subscribeToConfig(
-  state: ReactStatic.State,
+  state: State,
   callback: ReactStatic.ConfigCallback
 ): ReactStatic.Subscription {
   const resolvedPath = CONFIG_PATH_LOCATIONS.filter(Boolean)[0]
@@ -45,16 +45,16 @@ export default function subscribeToConfig(
 }
 
 function buildConfigFromPath(
-  state: ReactStatic.State,
+  state: State,
   configPath: string
-): ReactStatic.State {
+): State {
   delete require.cache[configPath]
   const config = require(configPath).default
   return buildConfig(state, config)
 }
 
 export function buildConfig(
-  state: ReactStatic.State,
+  state: State,
   config: Partial<ReactStatic.AppConfig> = {}
 ) {
   // Default Paths

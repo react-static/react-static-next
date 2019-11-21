@@ -32,12 +32,12 @@
     "confusing-browser-globals": "~1.0.9"
   },
   "devDependencies": {
-    "babel-eslint": "10.x",
-    "eslint": "6.x",
-    "@typescript-eslint/eslint-plugin": "2.x",
-    "@typescript-eslint/parser": "2.x",
-    "eslint-plugin-import": "2.x",
-    "eslint-plugin-jsx-a11y": "6.x",
-    "eslint-plugin-react": "7.x"
+    "@typescript-eslint/eslint-plugin": "~2.7.0",
+    "@typescript-eslint/parser": "~2.7.0",
+    "babel-eslint": "~10.0.3",
+    "eslint": "~6.6.0",
+    "eslint-plugin-import": "~2.18.2",
+    "eslint-plugin-jsx-a11y": "~6.2.3",
+    "eslint-plugin-react": "~7.16.0"
   }
 }

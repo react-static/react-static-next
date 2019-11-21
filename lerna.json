@@ -4,6 +4,8 @@
   ],
   "version": "independent",
   "npmClient": "yarn",
-  "npmClientArgs": ["--ignore-engines"],
+  "npmClientArgs": [
+    "--ignore-engines"
+  ],
   "useWorkspaces": true
 }

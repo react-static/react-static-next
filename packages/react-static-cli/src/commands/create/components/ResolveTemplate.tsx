@@ -44,7 +44,7 @@ export function ResolveTemplate({
   if (error) {
     return (
       <Box>
-        <Color redBright>
+        <Color red>
           <Text>{error.message}</Text>
         </Color>
       </Box>
@@ -56,7 +56,7 @@ export function ResolveTemplate({
       <Box marginRight={"package manager".length - "template".length + 1}>
         <Color yellowBright>template</Color>
       </Box>
-      <Color greenBright>
+      <Color green>
         <Spinner type="dots" />
       </Color>
       {` Retrieving ${templateSpec}`}

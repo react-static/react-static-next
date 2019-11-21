@@ -14,7 +14,7 @@ export function PluginCommand(opts: PluginCommandProps): JSX.Element {
           <Text>Creating a new react-static plugin</Text>
         </Color>
       </Box>
-      <Color greenBright>
+      <Color green>
         <Spinner type="dots" />
       </Color>
       {" Generating"}

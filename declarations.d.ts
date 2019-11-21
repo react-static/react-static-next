@@ -1,40 +1,6 @@
-declare namespace ReactStatic {
-  interface State {
-    stage: "dev"
-    config?: PlatformConfig
-    subscription?: Subscription
-  }
-
-  interface Subscription {
-    (): void
-  }
-
-  interface PlatformConfig {
-    paths: {
-      root: string
-      src: string
-      dist: string
-      temp: string
-      buildArtifacts: string
-      devDist: string
-      public: string
-      plugins: string
-      pages: string
-      nodeModules: string
-      assets: string
-    }
-  }
-
-  interface AppConfig {
-    paths: Partial<PlatformConfig["paths"]>
-  }
-
-  type ConfigCallback = (state: State) => void
-}
-
-declare module "wordwrap" {
+declare module 'wordwrap' {
   interface Options {
-    mode: "soft" | "hard"
+    mode: 'soft' | 'hard'
   }
 
   export default function wordwrap(
@@ -45,7 +11,7 @@ declare module "wordwrap" {
   export default function wordwrap(stop: number): (input: string) => string
 }
 
-declare module "lodash.padend" {
+declare module 'lodash.padend' {
   export default function padEnd(
     input?: string,
     length?: number,
@@ -53,84 +19,84 @@ declare module "lodash.padend" {
   ): string
 }
 
-declare module "lodash.trimstart" {
+declare module 'lodash.trimstart' {
   export default function trimStart(input?: string, chars?: string): string
 }
 
-declare module "ink-spinner" {
-  import { Component } from "react"
-  import { Chalk } from "chalk"
+declare module 'ink-spinner' {
+  import { Component } from 'react'
+  import { Chalk } from 'chalk'
 
   type SpinnerName =
-    | "dots"
-    | "dots2"
-    | "dots3"
-    | "dots4"
-    | "dots5"
-    | "dots6"
-    | "dots7"
-    | "dots8"
-    | "dots9"
-    | "dots10"
-    | "dots11"
-    | "dots12"
-    | "line"
-    | "line2"
-    | "pipe"
-    | "simpleDots"
-    | "simpleDotsScrolling"
-    | "star"
-    | "star2"
-    | "flip"
-    | "hamburger"
-    | "growVertical"
-    | "growHorizontal"
-    | "balloon"
-    | "balloon2"
-    | "noise"
-    | "bounce"
-    | "boxBounce"
-    | "boxBounce2"
-    | "triangle"
-    | "arc"
-    | "circle"
-    | "squareCorners"
-    | "circleQuarters"
-    | "circleHalves"
-    | "squish"
-    | "toggle"
-    | "toggle2"
-    | "toggle3"
-    | "toggle4"
-    | "toggle5"
-    | "toggle6"
-    | "toggle7"
-    | "toggle8"
-    | "toggle9"
-    | "toggle10"
-    | "toggle11"
-    | "toggle12"
-    | "toggle13"
-    | "arrow"
-    | "arrow2"
-    | "arrow3"
-    | "bouncingBar"
-    | "bouncingBall"
-    | "smiley"
-    | "monkey"
-    | "hearts"
-    | "clock"
-    | "earth"
-    | "moon"
-    | "runner"
-    | "pong"
-    | "shark"
-    | "dqpb"
-    | "weather"
-    | "christmas"
-    | "grenade"
-    | "point"
-    | "layer"
+    | 'dots'
+    | 'dots2'
+    | 'dots3'
+    | 'dots4'
+    | 'dots5'
+    | 'dots6'
+    | 'dots7'
+    | 'dots8'
+    | 'dots9'
+    | 'dots10'
+    | 'dots11'
+    | 'dots12'
+    | 'line'
+    | 'line2'
+    | 'pipe'
+    | 'simpleDots'
+    | 'simpleDotsScrolling'
+    | 'star'
+    | 'star2'
+    | 'flip'
+    | 'hamburger'
+    | 'growVertical'
+    | 'growHorizontal'
+    | 'balloon'
+    | 'balloon2'
+    | 'noise'
+    | 'bounce'
+    | 'boxBounce'
+    | 'boxBounce2'
+    | 'triangle'
+    | 'arc'
+    | 'circle'
+    | 'squareCorners'
+    | 'circleQuarters'
+    | 'circleHalves'
+    | 'squish'
+    | 'toggle'
+    | 'toggle2'
+    | 'toggle3'
+    | 'toggle4'
+    | 'toggle5'
+    | 'toggle6'
+    | 'toggle7'
+    | 'toggle8'
+    | 'toggle9'
+    | 'toggle10'
+    | 'toggle11'
+    | 'toggle12'
+    | 'toggle13'
+    | 'arrow'
+    | 'arrow2'
+    | 'arrow3'
+    | 'bouncingBar'
+    | 'bouncingBall'
+    | 'smiley'
+    | 'monkey'
+    | 'hearts'
+    | 'clock'
+    | 'earth'
+    | 'moon'
+    | 'runner'
+    | 'pong'
+    | 'shark'
+    | 'dqpb'
+    | 'weather'
+    | 'christmas'
+    | 'grenade'
+    | 'point'
+    | 'layer'
 
   interface SpinnerProps {
     type?: SpinnerName
@@ -150,19 +116,19 @@ declare module "ink-spinner" {
 
   type ChalkColorModels = Pick<
     Chalk,
-    "rgb" | "hsl" | "hsv" | "hwb" | "bgRgb" | "bgHsl" | "bgHsv" | "bgHwb"
+    'rgb' | 'hsl' | 'hsv' | 'hwb' | 'bgRgb' | 'bgHsl' | 'bgHsv' | 'bgHwb'
   >
   type ChalkKeywordsAndHexes = Pick<
     Chalk,
-    "keyword" | "hex" | "bgKeyword" | "bgHex"
+    'keyword' | 'hex' | 'bgKeyword' | 'bgHex'
   >
   type ChalkCommons = Omit<
     Chalk,
     | keyof ChalkColorModels
     | keyof ChalkKeywordsAndHexes
-    | "constructor"
-    | "level"
-    | "enabled"
+    | 'constructor'
+    | 'level'
+    | 'enabled'
   >
 
   type ChalkProps = BooleansPartial<ChalkCommons> &
@@ -174,8 +140,8 @@ declare module "ink-spinner" {
   export = Spinner
 }
 
-declare module "ink-confirm-input" {
-  import { Component } from "react"
+declare module 'ink-confirm-input' {
+  import { Component } from 'react'
 
   export interface ConfirmInputProps {
     onSubmit(value: boolean): void
@@ -184,8 +150,8 @@ declare module "ink-confirm-input" {
   export default class ConfirmInput extends Component<ConfirmInputProps> {}
 }
 
-declare module "ink-select-input" {
-  import { Component } from "react"
+declare module 'ink-select-input' {
+  import { Component } from 'react'
 
   export interface ItemOfSelectInput {
     label: string
@@ -208,8 +174,8 @@ declare module "ink-select-input" {
   export default class SelectInput extends Component<SelectInputProps> {}
 }
 
-declare module "ink-box" {
-  import { Component } from "react"
+declare module 'ink-box' {
+  import { Component } from 'react'
 
   export default class Box extends Component<any> {}
 }

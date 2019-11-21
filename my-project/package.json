@@ -1,0 +1,36 @@
+{
+  "name": "my-project",
+  "description": "Blank template for react-static projects.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-template-blank",
+  "homepage": "http://react-static.js.org",
+  "scripts": {
+    "start": "react-static-scripts start",
+    "build": "react-static-scripts build",
+    "export": "react-static-scripts export",
+    "bundle": "react-static-scripts bundle",
+    "lint": "react-static-scripts lint",
+    "test": "react-static-scripts test"
+  },
+  "files": [
+    "src/*",
+    "package.json",
+    "static.config.ts"
+  ],
+  "dependencies": {
+    "@react-static/core": "link:..\\packages\\react-static-core",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@hot-loader/react-dom": "^16.11.0",
+    "@react-static/scripts": "link:..\\packages\\react-static-scripts"
+  },
+  "resolutions": {
+    "@react-static/core": "link:..\\packages\\react-static-core",
+    "@react-static/scripts": "link:..\\packages\\react-static-scripts",
+    "@react-static/eslint-config": "link:..\\packages\\react-static-eslint-config"
+  }
+}

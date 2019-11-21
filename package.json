@@ -5,6 +5,8 @@
   "scripts": {
     "prebuild": "yarn tsc",
     "build": "lerna exec -- cross-env REACT_STATIC_ENV=internal yarn build",
+    "prewatch": "yarn build",
+    "watch": "lerna exec --stream --parallel -- cross-env REACT_STATIC_ENV=internal yarn watch",
     "lint": "yarn eslint 'packages/**/*.ts{,x}'",
     "lint:fix": "yarn lint --fix",
     "test": "lerna exec -- cross-env REACT_STATIC_ENV=internal yarn test",
@@ -12,19 +14,19 @@
     "postinstall": "yarn build"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
-    "@babel/core": "^7.6.4",
-    "@babel/preset-env": "^7.6.3",
-    "@typescript-eslint/eslint-plugin": "^2.4.0",
-    "@typescript-eslint/parser": "^2.4.0",
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-env": "^7.7.1",
+    "@typescript-eslint/eslint-plugin": "^2.7.0",
+    "@typescript-eslint/parser": "^2.7.0",
     "cross-env": "^6.0.3",
-    "eslint": "^6.5.1",
-    "eslint-config-prettier": "^6.4.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-react": "^7.16.0",
-    "lerna": "^3.18.1",
-    "prettier": "^1.18.2",
-    "typescript": "^3.6.4"
+    "lerna": "^3.18.4",
+    "prettier": "^1.19.1",
+    "typescript": "^3.7.2"
   },
   "workspaces": [
     "packages/*"

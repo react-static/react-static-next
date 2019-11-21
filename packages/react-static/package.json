@@ -15,6 +15,7 @@
     "test": "echo 'react-static has nothing to test -- it is deprecated'",
     "test:watch": "yarn test --watch",
     "lint": "echo 'react-static has nothing to lint -- it is deprecated'",
-    "postinstall": "echo 'use @react-static/cli' instead. Install it globally."
-  }
+    "postinstall": "echo 'use @react-static/cli instead. Install it globally.'"
+  },
+  "dependencies": {}
 }

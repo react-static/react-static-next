@@ -136,6 +136,10 @@ function commandReducer(
   }
 }
 
+/**
+ * Determines the next question based on the input state and returns that state
+ * with the next question set.
+ */
 function withNewQuestion(state: Readonly<CommandState>): CommandState {
   if (!state.template) {
     return {
@@ -217,7 +221,7 @@ function Init({ onInit }: { onInit(): void }): JSX.Element {
 
   return (
     <Fragment>
-      <Color greenBright>
+      <Color green>
         <Spinner type="dots" />
       </Color>
       {" Loading"}
@@ -233,44 +237,48 @@ function renderInit(
   return <Init onInit={(): void => dispatch({ type: "init", ...opts })} />
 }
 
+const LEFT_COL_LENGTH =
+  Math.max("name".length, "template".length, "package manager".length) + 3
+
 function renderAnswered(
   state: Readonly<CommandState>,
   _: Dispatch<CommandAction>,
   opts?: CreateCommandProps
 ): JSX.Element {
-  const max =
-    Math.max("name".length, "template".length, "package manager".length) + 3
+  const stepTemplate = !!(state.template || (opts && opts.templateSpec))
+  const stepPackageManager = !!state.packageManager
+  const stepName = !!state.name
+
+  if (1 === 1) {
+    return <Box></Box>
+  }
 
   return (
     <Box flexDirection="column">
-      {(state.template || (opts && opts.templateSpec)) && (
-        <Box flexDirection="row">
-          <Color yellowBright>
-            <Text>{padEnd("template", max)}</Text>
-          </Color>
-          <Text>
-            {state.template
-              ? `${state.template.name}@${state.template.version}`
-              : `- (${(opts && opts.templateSpec) || "<select>"})`}
-          </Text>
-        </Box>
-      )}
-      {state.packageManager && (
-        <Box flexDirection="row">
-          <Color yellowBright>
-            <Text>{padEnd("package manager", max)}</Text>
-          </Color>
-          <Text>{state.packageManager}</Text>
-        </Box>
-      )}
-      {state.name && (
-        <Box flexDirection="row">
-          <Color yellowBright>
-            <Text>{padEnd("name", max)}</Text>
-          </Color>
-          <Text>{state.name}</Text>
-        </Box>
-      )}
+      <Box flexDirection="row">
+        <Color yellowBright={stepTemplate} gray={!stepTemplate}>
+          <Text>{padEnd("template", LEFT_COL_LENGTH)}</Text>
+        </Color>
+        <Text>
+          {state.template
+            ? `${state.template.name}@${state.template.version}`
+            : `- (${(opts && opts.templateSpec) || ""})`}
+        </Text>
+      </Box>
+
+      <Box flexDirection="row">
+        <Color yellowBright={stepPackageManager} gray={!stepPackageManager}>
+          <Text>{padEnd("package manager", LEFT_COL_LENGTH)}</Text>
+        </Color>
+        <Text>{state.packageManager || ""}</Text>
+      </Box>
+
+      <Box flexDirection="row">
+        <Color yellowBright={stepName} gray={!stepName}>
+          <Text>{padEnd("name", LEFT_COL_LENGTH)}</Text>
+        </Color>
+        <Text>{state.name || ""}</Text>
+      </Box>
     </Box>
   )
 }
@@ -372,22 +380,22 @@ function renderDone(
   return (
     <Box flexDirection="column" marginTop={1}>
       <Text>
-        <Color redBright>-</Color> Your project{" "}
+        <Color red>-</Color> Your project{" "}
         <Color yellowBright>{state.name!}</Color> based on{" "}
         <Color yellowBright>{state.templateSpec!}</Color> is ready.
       </Text>
       <Text>
-        <Color redBright>-</Color> Its dependencies have been installed using{" "}
+        <Color red>-</Color> Its dependencies have been installed using{" "}
         <Color yellowBright>{state.packageManager}</Color>.
       </Text>
       <Text>
-        <Color redBright>-</Color> Find it at{" "}
+        <Color red>-</Color> Find it at{" "}
         <Color yellowBright>{state.path!}</Color>
       </Text>
       <Box marginTop={1}>
-        <StyledBox borderStyle="round" borderColor="greenBright" padding={1}>
+        <StyledBox borderStyle="round" borderColor="green" padding={1}>
           <Text>
-            cd <Color greenBright>{path.basename(state.path!)}</Color>
+            cd <Color green>{path.basename(state.path!)}</Color>
           </Text>
         </StyledBox>
       </Box>

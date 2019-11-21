@@ -7,8 +7,9 @@
   "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-plugin-sitemap",
   "homepage": "http://react-static.js.org",
   "scripts": {
-    "build": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --delete-dir-on-start --root-mode upward --no-comments",
-    "watch": "yarn build --watch",
+    "build:incremental": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --root-mode upward --no-comments",
+    "build": "yarn build:incremental --delete-dir-on-start",
+    "watch": "yarn build:incremental --watch",
     "lint": "eslint . && yarn lint:types",
     "lint:types": "yarn tsc",
     "build:declarations": "yarn tsc --emitDeclarationOnly",
@@ -20,5 +21,6 @@
   },
   "devDependencies": {
     "@react-static/core": "~0.1.0"
-  }
+  },
+  "dependencies": {}
 }

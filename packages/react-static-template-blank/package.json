@@ -1,10 +1,10 @@
 {
-  "name": "@react-static/template-blank",
-  "description": "Blank template for react-static projects.",
+  "name": "@react-static/template-blank-typescript",
+  "description": "Blank template for react-static projects (using TypeScript).",
   "version": "0.1.0",
   "license": "MIT",
   "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
-  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-template-blank",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-template-typescript",
   "homepage": "http://react-static.js.org",
   "scripts": {
     "start": "react-static-scripts start",
@@ -21,8 +21,8 @@
   ],
   "dependencies": {
     "@react-static/core": "~0.1.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2"
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0"
   },
   "devDependencies": {
     "@react-static/scripts": "~0.1.0"

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react"
 import SelectInput from "ink-select-input"
 
-import FEATURED_TEMPLATES from "../data/featured_templates"
+import FEATURED_TEMPLATES from "../data/FEATURED"
 import padEnd from "lodash.padend"
 import trimStart from "lodash.trimstart"
 import wordwrap from "wordwrap"
@@ -52,7 +52,7 @@ export function SelectTemplate({ onSelect }: SelectTemplateProps): JSX.Element {
   return (
     <Box flexDirection="row" marginTop={1}>
       <Box marginRight={"package manager".length - "template".length + 1}>
-        <Color cyanBright>
+        <Color cyan>
           <Text>template</Text>
         </Color>
       </Box>

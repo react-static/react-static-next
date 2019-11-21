@@ -8,7 +8,7 @@ const json = fse.readJSONSync(path.join(process.cwd(), 'package.json'))
 console.log(
   `Running internal build of ${chalk.yellowBright(
     `${json['name']}@${json['version']}`
-  )} via ${chalk.blueBright('@react-static/scripts')}`
+  )} via ${chalk.blue('@react-static/scripts')}`
 )
 
 const spawn = spawnSync(

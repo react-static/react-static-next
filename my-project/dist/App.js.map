@@ -1,1 +1,0 @@
-{"version":3,"sources":["../src/App.tsx"],"names":["App"],"mappings":";;;;;;;AAAA;;;;AAEe,SAASA,GAAT,GAA4B;AACzC,SAAO,uDAAP;AACD","sourcesContent":["import React from 'react'\r\n\r\nexport default function App(): JSX.Element {\r\n  return <h1>Hello World</h1>\r\n}\r\n"],"file":"App.js"}

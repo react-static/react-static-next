@@ -1,14 +1,19 @@
 import spawn from "cross-spawn"
 import chalk from "chalk"
 
-interface Message {
-  type: "message" | "error"
-  data: string
+interface InstallDependenciesResult
+  extends Readonly<InstallDependenciesResult> {
+  messages: readonly ReportableMessage[]
 }
 
+/**
+ * This installs all the dependencies in the current working directory.
+ *
+ * @param packageManager
+ */
 export async function installDependencies(
   packageManager: "yarn" | "npm"
-): Promise<void> {
+): Promise<InstallDependenciesResult> {
   return new Promise((resolve, reject) => {
     const command = packageManager === "yarn" ? "yarnpkg" : "npm"
     const handle = spawn(command, ["install"], {
@@ -19,11 +24,11 @@ export async function installDependencies(
 
     handle.addListener("message", message => reject(new Error(message)))
 
-    const messages: Message[] = []
+    const messages: ReportableMessage[] = []
 
     if (handle.stderr) {
       handle.stderr.on("data", message => {
-        messages.push({ type: "error", data: message })
+        messages.push({ type: "error", data: message.toString() })
       })
     }
 
@@ -35,14 +40,25 @@ export async function installDependencies(
 
     handle.on("close", status => {
       if (status === 0) {
-        return resolve()
+        return resolve({ messages })
       }
 
+      // If the status is non-successfull, show all the messages. It will
+      // highlight the error messages, and have the rest be dimmed. This
+      // ensures the error surfaces.
       reject(
         new Error(
-          `${chalk.redBright(`Non-zero exit code: ${status}`)}\n${messages
+          `${chalk.red(
+            `Non-zero exit code: ${status}`
+          )}\n${messages
             .map(obj =>
-              chalk[obj.type === "error" ? "redBright" : "gray"](obj.data)
+              chalk[
+                obj.type === "error"
+                  ? obj.data.startsWith("warning")
+                    ? "yellowBright"
+                    : "red"
+                  : "gray"
+              ](obj.data)
             )
             .join("")}`
         )

@@ -17,7 +17,7 @@ export function InputProjectName({
       <Box
         marginRight={Math.max(0, "package manager".length - "name".length) + 3}
       >
-        <Color cyanBright>
+        <Color cyan>
           <Text>name</Text>
         </Color>
       </Box>

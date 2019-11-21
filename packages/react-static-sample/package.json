@@ -13,7 +13,7 @@
   "scripts": {
     "start": "react-static-scripts start",
     "build": "react-static-scripts build",
-    "watch": "yarn start",
+    "watch": "react-static-scripts watch",
     "export": "react-static-scripts export",
     "bundle": "react-static-scripts bundle",
     "lint": "react-static-scripts lint",
@@ -21,8 +21,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2"
+    "react": "^16.x",
+    "react-dom": "^16.x"
   },
   "devDependencies": {
     "@react-static/scripts": "^0.1.0"

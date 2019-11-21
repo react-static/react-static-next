@@ -137,11 +137,11 @@ async function runScript(command: string, args: string[]): Promise<void> {
 
 async function showNonProjectDirectoryMessage(): Promise<void> {
   const exec = (text: string): string => chalk.yellowBright(text)
-  const json = (text: string): string => chalk.blueBright(text)
+  const json = (text: string): string => chalk.blue(text)
   const mute = (text: string): string => chalk.grey(text)
-  const file = (text: string): string => chalk.greenBright(text)
+  const file = (text: string): string => chalk.green(text)
 
-  const i = chalk.redBright("-")
+  const i = chalk.red("-")
 
   const xPackage = exec("@react-static/scripts")
   const xAlternative = exec("react-static create")
@@ -172,9 +172,9 @@ async function showNonProjectDirectoryMessage(): Promise<void> {
 
 async function showRedirectMessage(): Promise<void> {
   const exec = (text: string): string => chalk.yellowBright(text)
-  const json = (text: string): string => chalk.blueBright(text)
+  const json = (text: string): string => chalk.blue(text)
   const mute = (text: string): string => chalk.grey(text)
-  const file = (text: string): string => chalk.greenBright(text)
+  const file = (text: string): string => chalk.green(text)
 
   const xPackage = exec("@react-static/scripts")
   const fPackage = file("package.json")
