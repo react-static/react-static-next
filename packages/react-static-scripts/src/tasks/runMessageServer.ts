@@ -1,5 +1,5 @@
 import io from 'socket.io'
-import { MESSAGES } from '../messages'
+import { MESSAGES } from '@react-static/core'
 
 export interface MessageEmitters {
   reload: () => Promise<unknown>

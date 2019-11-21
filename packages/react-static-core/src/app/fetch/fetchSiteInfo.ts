@@ -1,6 +1,7 @@
 import { isDevelopment } from '../../isDevelopment'
-import { ROUTES } from '@react-static/scripts/src/routes'
-import ky from 'ky-universal'
+import { ROUTES } from '../../routes'
+import ky, { HTTPError } from 'ky-universal'
+import { FetchError } from './FetchError'
 
 function getSiteInfoRoot(): string {
   return ''
@@ -15,7 +16,12 @@ export async function fetchSiteInfo(): Promise<unknown> {
     ? ROUTES.siteData
     : [getSiteInfoRoot(), 'site-info.json'].join('/')
 
-  return ky.get(fetchPath).json()
+  return ky.get(fetchPath).json().catch(async (err) => {
+    if (err instanceof HTTPError) {
+      throw new FetchError(await err.response.text(), { status: err.response.status })
+    }
+    throw err
+  })
 
   // TODO catch and store as error
 }

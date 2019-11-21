@@ -4,9 +4,15 @@ import React, { Suspense, Component } from 'react'
 import { bootstrap } from '@react-static/core/src/app/bootstrap'
 import { useReloadOnChange } from '@react-static/core/src/app/hooks/useReloadOnChange'
 import { useSiteData } from '@react-static/core/src/app/hooks/useSiteData'
-import { useCurrentRouteData } from '@react-static/core/src/app/hooks/useRouteData'
+import {
+  useCurrentRouteData,
+  useRouteData,
+} from '@react-static/core/src/app/hooks/useRouteData'
 
 bootstrap()
+
+import { PrefetchExclusions } from '@react-static/core/src/app/configuration'
+PrefetchExclusions.add('/missing')
 
 // Export named App for testing
 export function App(): JSX.Element {
@@ -17,15 +23,16 @@ export function App(): JSX.Element {
       <h1>Hello World</h1>
       <SiteData />
       <RouteData />
+      <MissingRouteData />
     </div>
   )
 }
 
-function Loading() {
+function Loading(): JSX.Element {
   return <div>Loading...</div>
 }
 
-function SiteData() {
+function SiteData(): JSX.Element {
   return (
     <ErrorBoundary>
       <h2>Site data</h2>
@@ -36,7 +43,7 @@ function SiteData() {
   )
 }
 
-function RouteData() {
+function RouteData(): JSX.Element {
   return (
     <ErrorBoundary>
       <h2>Route data</h2>
@@ -47,13 +54,29 @@ function RouteData() {
   )
 }
 
-function UnsafeSiteData() {
+function MissingRouteData(): JSX.Element {
+  return (
+    <ErrorBoundary>
+      <h2>Route data (/missing)</h2>
+      <Suspense fallback={<Loading />}>
+        <UnsafeMissingRouteData />
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
+
+function UnsafeSiteData(): JSX.Element {
   const data = useSiteData()
   return <p>{JSON.stringify(data, null, 2)}</p>
 }
 
-function UnsafeRouteData() {
+function UnsafeRouteData(): JSX.Element {
   const data = useCurrentRouteData()
+  return <p>{JSON.stringify(data, null, 2)}</p>
+}
+
+function UnsafeMissingRouteData(): JSX.Element {
+  const data = useRouteData('missing/')
   return <p>{JSON.stringify(data, null, 2)}</p>
 }
 
@@ -68,6 +91,7 @@ class ErrorBoundary extends Component<
   }
 
   public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+    console.error(error)
     this.setState({ error, errorInfo })
   }
 

@@ -1,5 +1,5 @@
-import { ROUTES, ROUTE_PREFIX } from '@react-static/scripts/src/routes'
-import { MESSAGES } from '@react-static/scripts/src/messages'
+import { ROUTES, ROUTE_PREFIX } from '../routes'
+import { MESSAGES } from '../messages'
 
 import { triggerReload } from './hooks/useReloadOnChange'
 

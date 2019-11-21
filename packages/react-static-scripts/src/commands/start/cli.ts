@@ -6,6 +6,8 @@ import path from 'path'
 import os from 'os'
 
 import { createIndexHtmlFile } from '../../tasks/createIndexHtmlFile'
+import { fetchSiteData } from '../../tasks/fetchSiteData'
+import { fetchRoutes } from '../../tasks/fetchRoutes'
 import { runDevServer } from '../../tasks/runDevServer'
 import { PlatformConfig, RouteConfig, State } from '../../../index'
 
@@ -36,7 +38,7 @@ const FAKE_CONFIG: PlatformConfig = {
     nodeModules: path.join(expectedRootPath, 'node_modules'),
   },
   data: async () => {
-    return {}
+    return { 'fake': 'config', a: [1, 2, 3] }
   },
   plugins: async () => {
     return []
@@ -65,6 +67,9 @@ const FAKE_CONFIG: PlatformConfig = {
           },
         ],
       },
+      {
+        path: '/404'
+      }
     ]
   },
 }
@@ -75,12 +80,12 @@ const InputEnvironment = [
   process.env.NODE_ENV,
 ].filter(Boolean)[0]
 
-// Promise is handled by hard-rejection/register
-;(async (): Promise<void> => {
+    // Promise is handled by hard-rejection/register
+    ; (async (): Promise<void> => {
   process.env.REACT_STATIC_ENV = process.env.REACT_ENV = process.env.NODE_ENV =
-    InputEnvironment || 'development'
+            InputEnvironment || 'development'
 
-  let state: State = { stage: 'dev', config: FAKE_CONFIG } as const
+  let state: State = { stage: 'dev', config: FAKE_CONFIG, data: { site: undefined, routes: [] } }
 
   await fse.mkdirp(state.config.paths.dist.root)
   await fse.emptyDir(state.config.paths.dist.root)
@@ -89,7 +94,10 @@ const InputEnvironment = [
   state = await createIndexHtmlFile(state)
 
   // Try not the build twice
-  await new Promise((resolve) => setTimeout(resolve, 1))
+  await new Promise((resolve) => setTimeout(resolve, 100))
+
+  state = await fetchSiteData(state)
+  state = await fetchRoutes(state)
 
   const stateWithActions = await runDevServer({ config: {}, state })
 

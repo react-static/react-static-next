@@ -5,6 +5,8 @@ import { fetchRouteInfo } from '../fetch/fetchRouteInfo'
 import { onReload } from './useReloadOnChange'
 
 import deepmerge from 'deepmerge'
+import { FetchError } from '../fetch/FetchError'
+import { RoutePath } from '../..'
 
 const LOADED_ROUTE_DATA: Record<string, object> = {}
 const LOADING_ROUTE_DATA: Record<string, Promise<unknown>> = {}
@@ -32,6 +34,7 @@ async function loadAndStore(routePath: string): Promise<object> {
 
   if (typeof data === 'object' && data) {
     LOADED_ROUTE_DATA[routePath] = data
+    console.log('resolved', data)
     return Promise.resolve(data)
   }
 
@@ -41,7 +44,25 @@ async function loadAndStore(routePath: string): Promise<object> {
 }
 
 function getRouteData(routePath: string): object {
-  return LOADED_ROUTE_DATA[routePath]
+  const data = LOADED_ROUTE_DATA[routePath]
+
+  if (data instanceof FetchError) {
+    if (data.status === 404 && routePath !== '404') {
+      const dataNotFound = getRouteData('404')
+
+      if (dataNotFound) {
+        return dataNotFound
+      }
+
+      throw loadAndStore('404')
+    }
+  }
+
+  if (data instanceof Error) {
+    throw data
+  }
+
+  return data
 }
 
 /**
@@ -55,13 +76,19 @@ function getRouteData(routePath: string): object {
  * @returns {object}
  */
 export function useRouteData(routePath: string): object {
+  const normalised = RoutePath.normalize(routePath)
   const siteData = useSiteData()
 
-  if (isLoaded(routePath)) {
-    return deepmerge(siteData, getRouteData(routePath))
+  if (isLoaded(normalised)) {
+    console.log('is loaded', normalised, siteData)
+    return deepmerge(siteData, getRouteData(normalised))
   }
 
-  throw Promise.all([delay(500), loadAndStore(routePath)])
+  throw Promise.all([delay(500), loadAndStore(normalised)]).catch(
+    (err) => {
+      LOADED_ROUTE_DATA[normalised] = err
+    }
+  )
 }
 
 // On reload, register to remove all the things

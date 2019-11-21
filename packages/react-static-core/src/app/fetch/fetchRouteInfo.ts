@@ -1,7 +1,10 @@
 import { isDevelopment } from '../../isDevelopment'
-import { ROUTES } from '@react-static/scripts/src/routes'
+import { PrefetchExclusions } from '../configuration'
+import { FetchError } from './FetchError'
 
-import ky from 'ky-universal'
+import { ROUTES } from '../../routes'
+
+import ky, { HTTPError } from 'ky-universal'
 
 const EMPTY_INFO = Object.freeze({})
 
@@ -12,7 +15,9 @@ function isPrefetchableRoute(routePath: string): boolean {
   }
 
   // Don't prefetch excluded routes
-  //
+  if (PrefetchExclusions.contains(routePath)) {
+    return false
+  }
 
   // Otherwise it's fine
   return true
@@ -41,7 +46,12 @@ export async function fetchRouteInfo(
     ? ROUTES.routeData.replace('*', routePath)
     : [getRouteInfoRoot(), routePath, 'route-info.json'].join('/')
 
-  return ky.get(fetchPath).json()
+  return ky.get(fetchPath).json().catch(async (err) => {
+    if (err instanceof HTTPError) {
+      throw new FetchError(await err.response.text(), { status: err.response.status })
+    }
+    throw err
+  })
 
   // TODO catch and store as error
 }

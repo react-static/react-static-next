@@ -9,7 +9,7 @@ import { findAvailablePorts } from './findAvailablePorts'
 import { createWebpackConfig } from './createWebpackConfig'
 import { runMessageServer, MessageEmitters } from './runMessageServer'
 
-import { ROUTES, ROUTE_PREFIX } from '../routes'
+import { ROUTES, ROUTE_PREFIX, RoutePath } from '@react-static/core'
 import { version } from '../../package.json'
 import { State, StateWithActions } from '../..'
 
@@ -33,10 +33,12 @@ Route could not be found for: ${routePath}
 If you removed this route, disregard this error.
 If this is a dynamic route, consider adding it to the prefetchExcludes list:
 
-addPrefetchExcludes(['${routePath}'])
-    `.trim()
+import { PrefetchExclusions } from '@react-static/core'
+PrefetchExclusions.add('${routePath}')
+    `.trim() + '\n'
     )
 
+    this.name = 'RouteMissingError'
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -63,7 +65,7 @@ async function withHostAndPort(
 ): Promise<{ messagePort: number; config: RunDevServerOptions['config'] }> {
   const intendedPort = Number(
     (config && config.devServer && config.devServer.port) ||
-      DEFAULT_DEV_SERVER_PORT
+    DEFAULT_DEV_SERVER_PORT
   )
   const [port, messagePort] = await findAvailablePorts(intendedPort, 2)
 
@@ -92,7 +94,7 @@ async function withHostAndPort(
 }
 
 async function startDevServer(
-  options: RunDevServerOptions
+  options: RunDevServerOptions,
 ): Promise<StateWithActions> {
   const { config, messagePort } = await withHostAndPort(options.config)
   const devConfig = createWebpackConfig(config, options.state)
@@ -101,28 +103,28 @@ async function startDevServer(
   const devServerConfig: WebpackDevServer.Configuration = {
     open: !process.env.CI || process.env.CI === 'false',
     /*contentBase: [],
-    publicPath: '/',
-    historyApiFallback: true,
-    compress: false,
-    clientLogLevel: 'warning',
-    overlay: true,
-    stats: 'errors-only',
-    noInfo: true,*/
+        publicPath: '/',
+        historyApiFallback: true,
+        compress: false,
+        clientLogLevel: 'warning',
+        overlay: true,
+        stats: 'errors-only',
+        noInfo: true,*/
     ...devConfig.devServer,
-    before: buildDevBefore(devConfig, { messagePort }),
+    before: buildDevBefore(devConfig, options.state.data, { messagePort }),
     /*
-    hotOnly: true,
-    watchOptions: {
-      ...(state.config.devServer
-        ? state.config.devServer.watchOptions || {}
-        : {}),
-      ignored: [
-        /node_modules/,
+        hotOnly: true,
+        watchOptions: {
+          ...(state.config.devServer
+            ? state.config.devServer.watchOptions || {}
+            : {}),
+          ignored: [
+            /node_modules/,
 
-        ...((state.config.devServer.watchOptions || {}).ignored || []),
-      ],
-    },
-    */
+            ...((state.config.devServer.watchOptions || {}).ignored || []),
+          ],
+        },
+        */
   }
 
   console.log(`Starting server (${WEBPACK_HOOK_NAME}: ${ROUTE_PREFIX})`)
@@ -158,11 +160,11 @@ async function startDevServer(
   EMITTER_REF.current = await runMessageServer({ messagePort })
 
   /*
-  console.log('Running plugins...')
-  state = await plugins.afterDevServerStart(state)
+    console.log('Running plugins...')
+    state = await plugins.afterDevServerStart(state)
 
-  return state
-  */
+    return state
+    */
 
   return { ...options.state, ...EMITTER_REF.current! }
 }
@@ -197,6 +199,7 @@ function asyncRoute<T extends { [key: string]: string }>(
  */
 function buildDevBefore(
   options: RunDevServerOptions['config'],
+  data: RunDevServerOptions['state']['data'],
   { messagePort }: { messagePort: number }
 ): WebpackDevServer.Configuration['before'] {
   return (app, server, compiler): Application => {
@@ -207,6 +210,7 @@ function buildDevBefore(
     app.get(
       ROUTES.queryMessagePort,
       asyncRoute(async (_, res) => {
+        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.queryMessagePort}}`)
         res.send({ port: messagePort })
       })
     )
@@ -220,8 +224,10 @@ function buildDevBefore(
     app.get(
       ROUTES.siteData,
       asyncRoute(async (_, res, next) => {
+        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.siteData}}`)
+
         try {
-          res.send({ dev: 'some-site-data' })
+          res.send({ dev: 'some-site-data', actual: data.site })
         } catch (err) {
           res.status(500)
           res.send(err)
@@ -245,23 +251,30 @@ function buildDevBefore(
       asyncRoute(async (req: Request<{ 0: string }>, res) => {
         const { 0: routePath } = req.params
 
+        const normalized = RoutePath.normalize(routePath)
+        console.log(data)
+        const lookup = data.routes.find((route) => route && (route as { path: string }).path === normalized)
+
+        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.routeData}} with "${normalized}"`)
+
         // TODO: find route
-        const route = routePath !== 'missing'
+        const route = normalized !== '/missing' && lookup
 
         if (!route) {
-          const error = new RouteMissingError(routePath)
+          const error = new RouteMissingError(normalized)
           res.status(404)
           throw error
         }
 
         //const routeData = await getRouteData(route, latestState)
-        res.json({ dev: { routePath, params: JSON.stringify(req.params) } })
+        res.json({ dev: { routePath: normalized, params: JSON.stringify(req.params) }, actual: lookup })
       })
     )
 
     routesMap[ROUTES.routeData] =
       'Get route specific data, normally provided by a flat file.'
 
+    // Show the routes that have been registered
     app.get(
       ROUTES.help,
       asyncRoute(async (_, res) => {
@@ -273,6 +286,23 @@ function buildDevBefore(
     if (options.devServer && options.devServer.before) {
       options.devServer.before(app, server, compiler)
     }
+
+    // The dev-server error handler
+    app.use(function (
+      err: Error,
+      _: Request,
+      res: Response,
+      next: NextFunction
+    ) {
+      if (res.headersSent) {
+        return next(err)
+      }
+
+      res
+        .status(res.statusCode || 500)
+        .header('Content-Type', 'text/plain')
+        .send(`${err.name}: ${err.message}`)
+    })
 
     return app
   }

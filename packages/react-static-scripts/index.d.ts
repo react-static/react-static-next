@@ -1,3 +1,5 @@
+import React from 'react'
+
 export type CompChildrenProp = {
   children: React.ReactNode
 }
@@ -5,6 +7,10 @@ export type CompChildrenProp = {
 export interface State {
   stage: 'dev'
   config: PlatformConfig
+  data: {
+    site: unknown
+    routes: unknown[]
+  }
   subscription?: Subscription
 }
 
