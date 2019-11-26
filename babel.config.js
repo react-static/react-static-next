@@ -1,3 +1,6 @@
+// This configuration file is used when building react-static from src to dist
+// and NOT when running react-static-scripts start, build or export.
+//
 module.exports = {
   presets: [
     [
@@ -16,12 +19,14 @@ module.exports = {
     [
       '@babel/preset-react',
       {
+        // Use development react, unless it's building
         development: process.env.BABEL_ENV !== 'build',
       },
     ],
     '@babel/preset-typescript',
   ],
   env: {
+    // When building, ignore tests
     build: {
       ignore: [
         '**/*.test.tsx',

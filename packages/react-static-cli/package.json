@@ -6,6 +6,7 @@
   "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
   "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-cli",
   "homepage": "http://react-static.js.org",
+  "main": "dist/cli.js",
   "bin": {
     "react-static": "dist/cli.js"
   },
@@ -13,12 +14,15 @@
     "node": ">=8"
   },
   "scripts": {
+    "prebuild": "(rm tsconfig.tsbuildinfo -f || true)",
+    "build": "yarn build:incremental --delete-dir-on-start && yarn build:declarations",
     "build:incremental": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --root-mode upward --no-comments",
-    "build": "yarn build:incremental --delete-dir-on-start",
+    "build:declarations": "exit 0 # cli should not have types",
+    "build:declarations:watch": "yarn build:declarations --watch",
     "watch": "yarn build:incremental --watch",
-    "lint": "eslint . && yarn lint:types",
-    "lint:types": "yarn tsc",
-    "build:declarations": "yarn tsc --emitDeclarationOnly",
+    "lint": "eslint .",
+    "type-check": "yarn tsc --noEmit",
+    "type-check:watch": "yarn type-check --watch",
     "test": "yarn jest",
     "test:watch": "yarn test --watch"
   },

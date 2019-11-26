@@ -1,8 +1,8 @@
-import { isDevelopment } from '../../isDevelopment'
+import { isDevelopment } from '../../universal/environment'
 import { PrefetchExclusions } from '../configuration'
 import { FetchError } from './FetchError'
 
-import { ROUTES } from '../../routes'
+import { ROUTES } from '../../universal/routes'
 
 import ky, { HTTPError } from 'ky-universal'
 

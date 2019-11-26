@@ -1,17 +1,20 @@
 import { hot } from 'react-hot-loader/root'
 import React, { Suspense, Component } from 'react'
 
-import { bootstrap } from '@react-static/core/src/app/bootstrap'
-import { useReloadOnChange } from '@react-static/core/src/app/hooks/useReloadOnChange'
-import { useSiteData } from '@react-static/core/src/app/hooks/useSiteData'
 import {
+  bootstrap,
+  useReloadOnChange,
+  useSiteData,
   useCurrentRouteData,
   useRouteData,
-} from '@react-static/core/src/app/hooks/useRouteData'
+  PrefetchExclusions } from '@react-static/core'
+
+
+
 
 bootstrap()
 
-import { PrefetchExclusions } from '@react-static/core/src/app/configuration'
+
 PrefetchExclusions.add('/missing')
 
 // Export named App for testing

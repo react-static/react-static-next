@@ -21,6 +21,8 @@
   ],
   "dependencies": {
     "@react-static/core": "link:..\\packages\\react-static-core",
+    "@react-static/plugin-logging": "link:..\\packages\\react-static-plugin-logging",
+    "@react-static/plugin-sitemap": "link:..\\packages\\react-static-plugin-sitemap",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   },
@@ -30,6 +32,8 @@
   },
   "resolutions": {
     "@react-static/core": "link:..\\packages\\react-static-core",
+    "@react-static/plugin-logging": "link:..\\packages\\react-static-plugin-logging",
+    "@react-static/plugin-sitemap": "link:..\\packages\\react-static-plugin-sitemap",
     "@react-static/scripts": "link:..\\packages\\react-static-scripts",
     "@react-static/eslint-config": "link:..\\packages\\react-static-eslint-config"
   }

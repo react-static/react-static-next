@@ -2,12 +2,25 @@ import React from 'react'
 import { renderToString } from 'react-dom/server'
 import fse from 'fs-extra'
 
-import { PlatformConfig, State } from '../..'
+import { PlatformConfig, State } from '@react-static/types'
 
-export async function createIndexHtmlFile(state: State): Promise<State> {
+/**
+ * Creates the index.html file in the "dist" location, which will later be
+ * consumed by the webpack HtmlPlugin
+ *
+ * You can override the components that are being used to generate the initial
+ * HTML by settings the "html": { "Document", "Html", "Head", "Body" } options
+ * in the static.config.ext or by adding a plugin which sets these.
+ *
+ * @param rawState the intial state
+ * @returns the modified state
+ */
+export async function createIndexHtmlFile(rawState: Readonly<State>): Promise<State> {
+  const state = await runBeforeState(rawState)
+
+  // Read out options from the configuration
   const {
     config: {
-      paths,
       html: { Document, Html, Head, Body },
     },
   } = state
@@ -24,14 +37,27 @@ export async function createIndexHtmlFile(state: State): Promise<State> {
       <div id="root" />
     </Component>
   )
-  const html = `<!DOCTYPE html>${DocumentHtml}`
+  const rawHtml = `<!DOCTYPE html>${DocumentHtml}`
 
   // Write the Document to dist/index.html
-  fse.outputFileSync(paths.dist.html, html)
+  const outputOptions = await runBeforeOutput(state, rawHtml)
+  return writeOutput(outputOptions)
+}
 
+async function runBeforeState(state: Readonly<State>): Promise<State> {
+  return (await state.plugins.beforeIndexHtml({ state })).state
+}
+
+async function runBeforeOutput(state: Readonly<State>, html: Readonly<string>): Promise<OutputOptions> {
+  return await state.plugins.beforeIndexHtmlOutput({ state, html })
+}
+
+async function writeOutput({ state, html }: OutputOptions): Promise<State> {
+  await fse.outputFile(state.config.paths.dist.html, html)
   return state
 }
 
+type OutputOptions = { state: State, html: string}
 type HtmlComponentConfig = Required<PlatformConfig['html']>
 
 type DocumentType = HtmlComponentConfig['Document']

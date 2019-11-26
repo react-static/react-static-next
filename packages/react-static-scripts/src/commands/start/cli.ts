@@ -9,11 +9,13 @@ import { createIndexHtmlFile } from '../../tasks/createIndexHtmlFile'
 import { fetchSiteData } from '../../tasks/fetchSiteData'
 import { fetchRoutes } from '../../tasks/fetchRoutes'
 import { runDevServer } from '../../tasks/runDevServer'
-import { PlatformConfig, RouteConfig, State } from '../../../index'
+import { PlatformConfig, RouteConfig, State } from '../../../../react-static-types/index'
+import { fetchPlugins } from '../../tasks/fetchPlugins'
+import { PluginConfigList } from '@react-static/types'
 
 const expectedRootPackagePath = path.join(process.cwd(), 'package.json')
 const expectedRootPath = path.dirname(expectedRootPackagePath)
-const expectedConfigPath = path.join(expectedRootPath, 'static.config.js')
+// const expectedConfigPath = path.join(expectedRootPath, 'static.config.js')
 
 if (!fse.existsSync(expectedRootPackagePath)) {
   throw new Error(`Expected ${expectedRootPackagePath} to exist`)
@@ -41,7 +43,10 @@ const FAKE_CONFIG: PlatformConfig = {
     return { 'fake': 'config', a: [1, 2, 3] }
   },
   plugins: async () => {
-    return []
+    const plugins: PluginConfigList = []
+    plugins.push('@react-static/plugin-logging')
+    plugins.push(['@react-static/plugin-sitemap', { split: true }])
+    return plugins
   },
   routes: async () => {
     return [
@@ -72,6 +77,7 @@ const FAKE_CONFIG: PlatformConfig = {
       }
     ]
   },
+  siteRoot: undefined
 }
 
 const InputEnvironment = [
@@ -85,12 +91,24 @@ const InputEnvironment = [
   process.env.REACT_STATIC_ENV = process.env.REACT_ENV = process.env.NODE_ENV =
             InputEnvironment || 'development'
 
-  let state: State = { stage: 'dev', config: FAKE_CONFIG, data: { site: undefined, routes: [] } }
+  let state: Readonly<State> = {
+    stage: 'dev',
+    config: FAKE_CONFIG,
+    data: {
+      site: undefined,
+      routes: [],
+      plugins: []
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    plugins: undefined as unknown as any
+  }
 
+  // Create all directories (TODO: incremental)
   await fse.mkdirp(state.config.paths.dist.root)
   await fse.emptyDir(state.config.paths.dist.root)
   await fse.mkdirp(state.config.paths.artifacts)
 
+  state = await fetchPlugins(state)
   state = await createIndexHtmlFile(state)
 
   // Try not the build twice

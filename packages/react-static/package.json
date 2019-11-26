@@ -10,12 +10,12 @@
     "node": ">= 10.16.3"
   },
   "scripts": {
-    "build": "echo 'react-static has nothing to build -- it is deprecated'",
+    "build": "exit 0",
     "watch": "yarn build --watch",
-    "test": "echo 'react-static has nothing to test -- it is deprecated'",
+    "test": "exit 0",
     "test:watch": "yarn test --watch",
-    "lint": "echo 'react-static has nothing to lint -- it is deprecated'",
-    "postinstall": "echo 'use @react-static/cli instead. Install it globally.'"
+    "lint": "exit 0",
+    "postinstall": "echo 'react-static has been removed. Use @react-static/cli instead.'"
   },
   "dependencies": {}
 }

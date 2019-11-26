@@ -14,18 +14,20 @@
   },
   "types": "src/index.d.ts",
   "scripts": {
+    "prebuild": "(rm tsconfig.tsbuildinfo -f || true)",
+    "build": "yarn build:incremental --delete-dir-on-start && yarn build:declarations",
     "build:incremental": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --root-mode upward --no-comments",
-    "build": "yarn build:incremental --delete-dir-on-start",
+    "build:declarations": "exit 0 # cli should not have types",
+    "build:declarations:watch": "yarn build:declarations --watch",
     "watch": "yarn build:incremental --watch",
-    "lint": "eslint . && yarn lint:types",
-    "lint:types": "yarn tsc",
-    "build:declarations": "yarn tsc --emitDeclarationOnly",
+    "lint": "eslint .",
+    "type-check": "yarn tsc --noEmit",
+    "type-check:watch": "yarn type-check --watch",
     "test": "yarn jest",
     "test:watch": "yarn test --watch"
   },
   "files": [
-    "dist/*",
-    "src/index.d.ts",
+    "dist",
     "package.json"
   ],
   "peerDependencies": {
@@ -66,6 +68,7 @@
     "@babel/preset-react": "^7.7.0",
     "@babel/preset-typescript": "^7.7.2",
     "@react-static/core": "~0.1.0",
+    "@react-static/types": "~0.1.0",
     "@testing-library/react": "^9.3.2",
     "@types/cross-spawn": "^6.0.1",
     "@types/fs-extra": "^8.0.1",

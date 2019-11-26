@@ -1,5 +1,4 @@
 import React from 'react'
-import { version as VERSION } from '../../../package.json'
 
 export interface DocumentProps {
   Html: React.ElementType,
@@ -19,7 +18,7 @@ export function Document({ Html, Head, Body, children }: DocumentProps): JSX.Ele
         <meta charSet="UTF-8" />
         <meta httpEquiv="x-ua-compatible" content="ie=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="generator" content={`React-Static ${VERSION}`} />
+        <meta name="generator" content={`React Static 8`} />
       </Head>
       <Body>{children}</Body>
     </Html>

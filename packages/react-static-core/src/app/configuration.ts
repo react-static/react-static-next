@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const PrefetchExclusions = (() =>
   new (class PrefetchExclusions {
-    private exclusions: string[]
+    public exclusions: string[]
 
     constructor() {
       this.exclusions = []

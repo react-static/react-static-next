@@ -2,24 +2,54 @@ import { Configuration, EnvironmentPlugin } from 'webpack'
 import path from 'path'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
-import { State } from '../..'
+import { State } from '@react-static/types'
+import { isDevelopment } from '@react-static/core/dist/universal/environment'
 
-export function createWebpackConfig(
-  config: Configuration,
-  state: State
-): Configuration {
-  const templatePath = state.config.paths.dist.html
-  const isNotDevelopment = process.env.REACT_STATIC_ENV !== 'development'
+/**
+ * Creates the webpack configuration
+ *
+ * @param rawConfig the current webpack configuration
+ * @param rawState the current state
+ * @returns the modified webpack configuration
+ */
+export async function createWebpackConfig(
+  rawConfig: Readonly<Configuration>,
+  rawState: Readonly<State>
+): Promise<Configuration> {
+  const isNotDevelopment = !isDevelopment()
+  const { state, config } = await runBeforeState(rawState, rawConfig)
 
-  return {
+  const {
+    dist: projectDistPath,
+    src: projectSrcPath,
+    nodeModules: projectNodeModulesPath,
+    plugins: projectPluginsPath
+  } = state.config.paths
+
+  const builtConfig = {
     output: {
-      path: path.join(process.cwd(), 'dist'),
-      filename: 'static.bundle.js',
+      path: projectDistPath.root,
+      filename: '[name].js',
     },
-    devtool: isNotDevelopment ? undefined : 'cheap-module-eval-source-map',
+    devtool: isNotDevelopment ? undefined : 'cheap-module-eval-source-map' as const,
+    // Items above are overridden
     ...config,
+    // Items below are augmented
     resolve: {
+      // Search in these places, that is:
+      // - project /src
+      // - project /plugins
+      // - project /node_modules
+      // - node_modules of wherever @react-static/scripts lives
+      modules: [
+        projectSrcPath,
+        projectPluginsPath,
+        projectNodeModulesPath,
+        'node_modules'
+      ],
       extensions: [
+        '.wasm',
+        '.mjs',
         '.ts',
         '.tsx',
         '.js',
@@ -28,52 +58,69 @@ export function createWebpackConfig(
       ],
       alias: {
         // Ensure we only ever load a single react package!
-        react: path.resolve(process.cwd(), 'node_modules', 'react'),
+        react: path.resolve(projectNodeModulesPath, 'react'),
         // This allows a consumer to have a _different_ version of react-dom vs
         // @hot-loader/react-dom depending on the environment.
         //
         // TODO: once webpack supports it, move to fast-refresh instead of
         //       hot-loader, if possible
         'react-dom': path.resolve(
-          process.cwd(),
-          'node_modules',
+          projectNodeModulesPath,
           isNotDevelopment ? 'react-dom' : '@hot-loader/react-dom'
         ),
+        //
         ...((config.resolve && config.resolve.alias) || {}),
       },
     },
     module: {
+      strictExportPresence: true,
+      ...config.module,
       rules: [
         {
-          test: /\.(j|t)sx?$/,
-          exclude: /node_modules/,
+          test: /\.(m|j|t)sx?$/,
+          // Compile those typescript and javascript files in the /src and
+          // /plugins directories of the react-static project
+          include: [
+            projectSrcPath,
+            projectPluginsPath
+          ],
           use: {
             loader: 'babel-loader',
             options: {
+              highlightCode: true,
               cacheDirectory: true,
               babelrc: false,
               presets: [
                 [
                   '@babel/preset-env',
                   {
-                    targets: { browsers: 'last 2 versions' },
+                    targets: {
+                      browsers: [
+                        '>0.25%',
+                        'not dead',
+                        'not op_mini all'
+                      ]
+                    },
                     useBuiltIns: 'usage',
                     corejs: { version: 3.4 },
                   },
                 ],
                 '@babel/preset-typescript',
-                '@babel/preset-react',
+                [
+                  '@babel/preset-react',
+                  {
+                    development: isDevelopment()
+                  }
+                ]
               ],
               plugins: [
-                // ['@babel/plugin-proposal-class-properties', { loose: true }],
                 'react-hot-loader/babel',
               ],
             },
           },
         },
         ...((config.module && config.module.rules) || []),
-      ],
-      ...config.module,
+      ]
     },
     mode: webpackMode(),
     plugins: [
@@ -83,12 +130,22 @@ export function createWebpackConfig(
         REACT_STATIC_ENV: process.env.REACT_STATIC_ENV || 'development',
       }),
       new HtmlWebpackPlugin({
-        template: `!!raw-loader!${templatePath}`,
+        template: `!!raw-loader!${projectDistPath.html}`,
         hash: true,
         inject: true,
       }),
     ],
   }
+
+  return runBeforeUse(state, builtConfig)
+}
+
+async function runBeforeState(state: Readonly<State>, config: Readonly<Configuration>): Promise<{ state: State, config: Configuration }> {
+  return await state.plugins.beforeWebpack({ state, config })
+}
+
+async function runBeforeUse(state: Readonly<State>, config: Readonly<Configuration>): Promise<Configuration> {
+  return (await state.plugins.afterWebpack({ state, config })).config
 }
 
 const VALID_WEBPACK_MODES_FROM_ENV = ['development', 'production'] as const

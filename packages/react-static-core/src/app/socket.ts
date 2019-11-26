@@ -1,5 +1,5 @@
-import { ROUTES, ROUTE_PREFIX } from '../routes'
-import { MESSAGES } from '../messages'
+import { ROUTES, ROUTE_PREFIX } from '../universal/routes'
+import { MESSAGES } from '../universal/messages'
 
 import { triggerReload } from './hooks/useReloadOnChange'
 

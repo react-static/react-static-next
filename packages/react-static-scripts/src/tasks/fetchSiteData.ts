@@ -1,16 +1,32 @@
-import { State } from "../..";
+import { State } from '@react-static/types';
 
-export async function fetchSiteData(state: Readonly<State>): Promise<State> {
-  if (state.config.data) {
-    console.log('Fetching site data...')
+export async function fetchSiteData(rawState: Readonly<State>): Promise<State> {
+  const state = await runBeforeState(rawState)
 
-    const resolvedData = await state.config.data
-    if (typeof resolvedData === 'function') {
-      return fetchSiteData({ ...state, config: { ...state.config, data: resolvedData() }})
-    }
+  if (!state.config.data) {
+    return state
+  }
+  console.log('Fetching site data...')
 
-    return { ...state, data: { ...state.data, site: resolvedData } }
+  let resolvedData = await state.config.data
+  if (typeof resolvedData === 'function') {
+    resolvedData = await resolvedData()
   }
 
-  return state
+  const nextState = await runBeforeMerge(state, resolvedData)
+    .then(({ site, state }) => mergeSiteDataIntoState(state, site))
+
+  return nextState
+}
+
+async function runBeforeState(state: Readonly<State>): Promise<State> {
+  return (await state.plugins.beforeSiteData({ state })).state
+}
+
+async function runBeforeMerge(state: Readonly<State>, site: unknown): Promise<{ state: State, site: unknown }> {
+  return (await state.plugins.afterSiteData({ state, site }))
+}
+
+async function mergeSiteDataIntoState(state: Readonly<State>, site: unknown): Promise<State> {
+  return { ...state, data: { ...state.data, site  } }
 }

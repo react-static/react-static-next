@@ -1,6 +1,6 @@
-import { isDevelopment } from '../isDevelopment'
+import { isDevelopment } from '../universal/environment'
 import { startDevelopmentSocket } from './socket'
-import { onReload } from './hooks/useReloadOnChange'
+// import { onReload } from './hooks/useReloadOnChange'
 
 // When in development, init a socket to listen for data changes
 // When the data changes, we invalidate and reload all of the route data

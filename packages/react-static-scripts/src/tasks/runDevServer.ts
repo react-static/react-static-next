@@ -10,8 +10,14 @@ import { createWebpackConfig } from './createWebpackConfig'
 import { runMessageServer, MessageEmitters } from './runMessageServer'
 
 import { ROUTES, ROUTE_PREFIX, RoutePath } from '@react-static/core'
-import { version } from '../../package.json'
-import { State, StateWithActions } from '../..'
+import { State, StateWithActions } from '@react-static/types'
+
+// Using a require here so that typescript does not include it in its
+// compilation group, which will require the file to be under the rootDir(s),
+// forcing the layout of dist to include the sub-folder src/
+//
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { version } = require('../../package.json')
 
 const WEBPACK_HOOK_NAME = `react-static@${version}`
 const DEFAULT_DEV_SERVER_PORT = 8300
@@ -97,7 +103,7 @@ async function startDevServer(
   options: RunDevServerOptions,
 ): Promise<StateWithActions> {
   const { config, messagePort } = await withHostAndPort(options.config)
-  const devConfig = createWebpackConfig(config, options.state)
+  const devConfig = await createWebpackConfig(config, options.state)
   const devCompiler = webpack(devConfig)
 
   const devServerConfig: WebpackDevServer.Configuration = {

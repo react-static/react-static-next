@@ -1,0 +1,21 @@
+{
+  "name": "@react-static/types",
+  "version": "0.1.0",
+  "license": "MIT",
+  "types": "index.d.ts",
+  "files": [
+    "index.d.ts"
+  ],
+  "scripts": {
+    "build": "exit 0",
+    "lint": "exit 0",
+    "type-check": "tsc --noEmit",
+    "test": "type-check"
+  },
+  "peerDependencies": {
+    "@types/webpack": "4.x"
+  },
+  "devDependencies": {
+    "@types/webpack": "4.41.0"
+  }
+}

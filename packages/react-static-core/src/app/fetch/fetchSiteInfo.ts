@@ -1,5 +1,5 @@
-import { isDevelopment } from '../../isDevelopment'
-import { ROUTES } from '../../routes'
+import { isDevelopment } from '../../universal/environment'
+import { ROUTES } from '../../universal/routes'
 import ky, { HTTPError } from 'ky-universal'
 import { FetchError } from './FetchError'
 

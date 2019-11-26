@@ -1,4 +1,4 @@
-import { AppConfig, AsyncRoutesConfig } from '@react-static/scripts'
+import { AppConfig, AsyncRoutesConfig } from '@react-static/types'
 
 const config: AppConfig = {
   data: { global: { my: 'data' } },
