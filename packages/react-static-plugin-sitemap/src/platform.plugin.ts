@@ -1,4 +1,4 @@
-import { PlatformPlugin, State } from '@react-static/types'
+import { PlatformPlugin, State, RouteConfig, ResolvedRouteList } from '@react-static/types'
 
 import fs from 'fs'
 import path from 'path'
@@ -11,12 +11,15 @@ interface PluginOptions {
   filename?: string
   indexFileName?: string
   pretty?: false
+  shouldEmitRoute?(route: ResolvedRouteList[number]): boolean
+  onEmitRoute?(url: builder.XMLElement, route: ResolvedRouteList[number]): void
 }
 
 const DEFAULT_SPLIT = { n: 5000 } as const
 const GOOGLE_HELP_URL = 'https://support.google.com/webmasters/answer/183668?hl=en&ref_topic=4581190#sitemapformat'
+const DEFAULT_SHOULD_EMIT_ROUTE = (route: ResolvedRouteList[number]): boolean => route.path !== '/404'
 
-export default ({ siteRoot, excludePatterns, split, filename, indexFileName, pretty }: PluginOptions = {}): PlatformPlugin => {
+export default ({ siteRoot, excludePatterns, split, filename, indexFileName, pretty, shouldEmitRoute, onEmitRoute }: PluginOptions = {}): PlatformPlugin => {
 
   const excludePredicates = (excludePatterns || []).map(
     (pattern) => typeof pattern === 'string'
@@ -52,7 +55,7 @@ export default ({ siteRoot, excludePatterns, split, filename, indexFileName, pre
         let batchCount: number
         if (splitOption === false) {
           if (sortedRoutes.length > DEFAULT_SPLIT.n) {
-            console.warn(`
+            state.logger.warn(`
 You have at least ${sortedRoutes.length} routes in your sitemap. Google, among
 others has a limit on the amount of URLS that may be present in a sitemap. You
 can tell @react-static/plugin-sitemap to split up your sitemap automatically:
@@ -102,11 +105,15 @@ ${GOOGLE_HELP_URL}
           const sitemapXml = builder.create('urlset')
           sitemapXml.attribute('xmlns', "http://www.sitemaps.org/schemas/sitemap/0.9")
 
-          writableRoutes.forEach((route) => {
-            const url = sitemapXml.ele('url')
-            url.ele('loc', resolvedSiteRoot + route.path)
-            url.ele('lastmod', new Date().toDateString())
-          })
+          writableRoutes
+            .filter(shouldEmitRoute || DEFAULT_SHOULD_EMIT_ROUTE)
+            .forEach((route) => {
+              const url = sitemapXml.ele('url')
+              url.ele('loc', resolvedSiteRoot + route.path)
+              url.ele('lastmod', new Date().toDateString())
+
+              onEmitRoute && onEmitRoute(url, route)
+            })
 
           const sitemapData = sitemapXml.end({ pretty: pretty === false || true })
 
@@ -180,7 +187,7 @@ async function findHomePage(state: Readonly<State>): Promise<string> {
         }
       }
 
-      console.warn(`
+      state.logger.warn(`
 In order to generate a sitemap, the site's root url must be known, as sitemaps
 must contain fully-qualified URLs. By default @react-static/plugin-sitemap will
 use the "siteRoot" option for the plugin, the "siteRoot" configuration value or

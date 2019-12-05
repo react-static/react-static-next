@@ -6,63 +6,172 @@ import { onReload } from './useReloadOnChange'
 
 import deepmerge from 'deepmerge'
 import { FetchError } from '../fetch/FetchError'
-import { RoutePath } from '../..'
+import { RoutePath } from '../../universal/RoutePath'
+import { useDebugValue } from 'react'
+import { isDevelopment } from '../../universal/environment'
 
-const LOADED_ROUTE_DATA: Record<string, object> = {}
-const LOADING_ROUTE_DATA: Record<string, Promise<unknown>> = {}
+class RouteInfo {
+  constructor(public readonly data: object, public readonly template: string) {
+  }
 
+  public get found(): boolean {
+    return true
+  }
+}
+
+class NotFoundRouteInfo extends RouteInfo {
+  public get found(): boolean {
+    return false
+  }
+}
+
+class ErrorRouteInfo extends RouteInfo {
+  constructor(public readonly error: Error) {
+    super({}, '')
+  }
+
+  public get found(): boolean {
+    return false
+  }
+}
+
+const LOADED_ROUTE_DATA: Record<string, RouteInfo> = {}
+const LOADING_ROUTE_DATA: Record<string, Promise<object>> = {}
+const NORMALISED_404_PATH = RoutePath.normalize('/404')
+
+/**
+ * Get the route data for the current path
+ */
 export function useCurrentRouteData():
 | ReturnType<typeof useRouteData>
-| undefined {
+| ErrorRouteInfo {
   const currentRoutePath = useCurrentRoutePath()
-  return typeof currentRoutePath === 'string'
-    ? useRouteData(currentRoutePath)
-    : undefined
+  return useRouteData(currentRoutePath)
 }
 
 function isLoaded(routePath: string): boolean {
-  return typeof LOADED_ROUTE_DATA[routePath] !== 'undefined'
+  return LOADED_ROUTE_DATA[routePath] instanceof RouteInfo
 }
 
-async function loadAndStore(routePath: string): Promise<object> {
-  // Only fetch if not already fetching
-  LOADING_ROUTE_DATA[routePath] =
+/**
+ * Attempts to load and store the route data for a given path.
+ *
+ * ⚠ if there is a known fetch (either in-flight or completed), it is used and
+ * returned instead.
+ *
+ * @param {string} routePath the path
+ * @returns {Promise<RouteInfo>}
+ */
+async function loadAndStore(routePath: string): Promise<RouteInfo> {
+  const thisPromise = (
     LOADING_ROUTE_DATA[routePath] ||
     fetchRouteInfo(routePath, { priority: true })
+  )
 
-  const data = await LOADING_ROUTE_DATA[routePath]
+  // Only fetch if not already fetching
+  LOADING_ROUTE_DATA[routePath] = thisPromise
 
-  if (typeof data === 'object' && data) {
-    LOADED_ROUTE_DATA[routePath] = data
-    console.log('resolved', data)
-    return Promise.resolve(data)
+  const info = await thisPromise.then((through) => through)
+
+  if (isValidRouteInfo(info)) {
+    const wrapped = NORMALISED_404_PATH === routePath
+      ? new NotFoundRouteInfo(info.data, info.template)
+      : new RouteInfo(info.data, info.template)
+
+    LOADED_ROUTE_DATA[routePath] = wrapped
+    return wrapped
   }
 
-  return Promise.reject(
-    new Error(`Route ${routePath} returned no object (got: ${typeof data})`)
+  if (NORMALISED_404_PATH === routePath) {
+    throw new Error("Could not retrieve 404 data")
+  }
+
+  throw new Error(`Route ${routePath} returned no object (got: ${typeof info})`)
+}
+
+function loadAndStoreOrMark(routePath: string): ReturnType<typeof loadAndStore> {
+  return loadAndStore(routePath).catch(
+    (err) => {
+      console.error(err)
+
+      const result = new ErrorRouteInfo(err)
+      const promise = Promise.reject(result.error)
+
+      LOADED_ROUTE_DATA[routePath] = result
+      LOADING_ROUTE_DATA[routePath] = promise
+
+      // This is so this promise doesn't pollute the log. It's handled.
+      promise.catch(() => { /* no-op */ })
+
+      return Promise.resolve(result)
+    }
   )
 }
 
-function getRouteData(routePath: string): object {
-  const data = LOADED_ROUTE_DATA[routePath]
+function isValidRouteInfo(info: object): info is { data: object, template: string } {
+  if (typeof info !== 'object') {
+    return false
+  }
 
-  if (data instanceof FetchError) {
-    if (data.status === 404 && routePath !== '404') {
-      const dataNotFound = getRouteData('404')
-
-      if (dataNotFound) {
-        return dataNotFound
+  if ('data' in info) {
+    // type-check the data
+    if (typeof (info as { data: unknown }).data !== 'object') {
+      if (isDevelopment()) {
+        console.warn(`The route has data attached, but expected an object, got '${typeof (info as { data: unknown }).data}.`)
       }
 
-      throw loadAndStore('404')
+      return false
     }
   }
 
-  if (data instanceof Error) {
-    throw data
+  if ('template' in info) {
+    // type-check the template
+    if (typeof (info as { template: unknown }).template !== 'string') {
+      if (isDevelopment()) {
+        console.warn(`The route has a template attached, but expected a string, got '${typeof (info as { template: unknown }).template}.`)
+      }
+
+      return false
+    }
+  } else {
+    // template is required
+    return false
   }
 
-  return data
+  // TODO: typecheck data and template
+  return true
+}
+
+function getRouteInfo(routePath: string): RouteInfo {
+  const wrapped = LOADED_ROUTE_DATA[routePath]
+
+  if (wrapped instanceof ErrorRouteInfo) {
+    if (wrapped.error instanceof FetchError) {
+      if (wrapped.error.status === 404 && RoutePath.normalize(routePath) !== NORMALISED_404_PATH) {
+        const dataNotFound = getRouteInfo(NORMALISED_404_PATH)
+
+        if (dataNotFound) {
+          return dataNotFound
+        }
+
+        throw loadAndStoreOrMark(NORMALISED_404_PATH)
+      }
+
+      throw wrapped.error
+    }
+  }
+
+  return wrapped
+
+}
+
+function getRouteData(routePath: string): object {
+  return getRouteInfo(routePath).data
+}
+
+function getRouteTemplate(routePath: string): string {
+  return getRouteInfo(routePath).template
+
 }
 
 /**
@@ -77,19 +186,40 @@ function getRouteData(routePath: string): object {
  */
 export function useRouteData(routePath: string): object {
   const normalised = RoutePath.normalize(routePath)
+  const dataReady = isLoaded(normalised)
+
+  useDebugValue(
+    { flag: dataReady, path: normalised },
+    ({ flag, path }) => `RouteData of ${path} ${flag ? 'ready' : 'needs fetching'}`
+  )
+
   const siteData = useSiteData()
 
-  if (isLoaded(normalised)) {
-    console.log('is loaded', normalised, siteData)
-    return deepmerge(siteData, getRouteData(normalised))
+  if (dataReady) {
+    return deepmerge(siteData || {}, getRouteData(normalised) || {})
   }
 
-  throw Promise.all([delay(500), loadAndStore(normalised)]).catch(
-    (err) => {
-      LOADED_ROUTE_DATA[normalised] = err
-    }
-  )
+  throw loadAndStoreOrMark(normalised)
 }
+// Promise.all([delay(500), loadAndStore(normalised)])
+
+/**
+ * Similar to useRouteData, but not actually a hook as it does not depend on
+ * other hooks (sub-hooks).
+ *
+ * @see useRouteData
+ */
+export function suspendForRouteTemplate(routePath: string): string {
+  const normalised = RoutePath.normalize(routePath)
+
+  if (isLoaded(normalised)) {
+    return getRouteTemplate(routePath)
+  }
+
+  throw loadAndStoreOrMark(normalised)
+}
+
+// Promise.all([delay(500), loadAndStore(normalised)])
 
 // On reload, register to remove all the things
 onReload(() => {

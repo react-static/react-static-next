@@ -46,7 +46,7 @@ export async function fetchRouteInfo(
     ? ROUTES.routeData.replace('*', routePath)
     : [getRouteInfoRoot(), routePath, 'route-info.json'].join('/')
 
-  return ky.get(fetchPath).json().catch(async (err) => {
+  return ky.get(fetchPath.replace('//', '/')).json().catch(async (err) => {
     if (err instanceof HTTPError) {
       throw new FetchError(await err.response.text(), { status: err.response.status })
     }

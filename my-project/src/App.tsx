@@ -1,33 +1,38 @@
 import { hot } from 'react-hot-loader/root'
-import React, { Suspense, Component } from 'react'
+import React, { Fragment, Suspense, Component, useContext, useEffect, useRef } from 'react'
+import { useLocation, Route } from 'react-router-dom'
 
 import {
   bootstrap,
   useReloadOnChange,
   useSiteData,
   useCurrentRouteData,
+  useCurrentRoutePath,
   useRouteData,
-  PrefetchExclusions } from '@react-static/core'
+  PrefetchExclusions,
+  StaticRoot,
+  StaticRoutes,
+} from '@react-static/core'
 
-
-
-
+console.log('bootstrapping')
 bootstrap()
 
-
-PrefetchExclusions.add('/missing')
+// PrefetchExclusions.add('/missing')
 
 // Export named App for testing
 export function App(): JSX.Element {
-  useReloadOnChange(() => console.log('Clearing site and route data...'))
+  useReloadOnChange(() => console.info('Clearing site and route data...'))
 
   return (
-    <div>
-      <h1>Hello World</h1>
-      <SiteData />
+    <StaticRoot>
+      <h1 style={{ color: 'red' }}>Hello World</h1>
+
       <RouteData />
+      <SiteData />
       <MissingRouteData />
-    </div>
+
+      <Routes />
+    </StaticRoot>
   )
 }
 
@@ -47,13 +52,16 @@ function SiteData(): JSX.Element {
 }
 
 function RouteData(): JSX.Element {
+  // render on each location, thanks react router / suspense
+  useLocation()
+
   return (
-    <ErrorBoundary>
+    <Route path="/blog">
       <h2>Route data</h2>
       <Suspense fallback={<Loading />}>
         <UnsafeRouteData />
       </Suspense>
-    </ErrorBoundary>
+    </Route>
   )
 }
 
@@ -74,13 +82,50 @@ function UnsafeSiteData(): JSX.Element {
 }
 
 function UnsafeRouteData(): JSX.Element {
+  const count = useRef(0)
+
+  useEffect(() => {
+    count.current += 1
+  })
+
+  const path = useCurrentRoutePath()
   const data = useCurrentRouteData()
-  return <p>{JSON.stringify(data, null, 2)}</p>
+
+  return (
+    <section>
+      The path is: <code>{path}</code> / count: {count.current}
+      <pre>
+        <code>{JSON.stringify(data, null, 2)}</code>
+      </pre>
+    </section>
+  )
 }
 
 function UnsafeMissingRouteData(): JSX.Element {
   const data = useRouteData('missing/')
   return <p>{JSON.stringify(data, null, 2)}</p>
+}
+
+function Routes(): JSX.Element {
+  return (
+    <Fragment>
+      <StaticRoutes loading={<Loading />} render={
+        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+        (path, getComponent) => {
+          const Component = getComponent(path)
+          return (
+            <section>
+              <p>rendering: <code>{path}</code></p>
+              <div style={{ padding: 10, border: '2px solid black' }}>
+                <Component />
+              </div>
+            </section>
+          )
+        }
+      } />
+      <UnsafeRouteData/>
+    </Fragment>
+  )
 }
 
 class ErrorBoundary extends Component<
@@ -93,9 +138,8 @@ class ErrorBoundary extends Component<
     this.state = {}
   }
 
-  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
-    console.error(error)
-    this.setState({ error, errorInfo })
+  public static getDerivedStateFromError(error: Error): Partial<{ error?: Error }> {
+    return { error }
   }
 
   public render(): React.ReactNode {

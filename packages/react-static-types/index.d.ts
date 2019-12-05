@@ -1,4 +1,5 @@
 import React from 'react'
+import { Location } from 'history'
 
 export type CompChildrenProp = {
   children: React.ReactNode
@@ -36,11 +37,23 @@ export interface State {
   subscription?: Subscription
   // Holds the plugin chains
   plugins: PlatformPlugins
+  // Holds the logger
+  logger: PlatformLogger
 }
 
 interface Actions {
+  /**
+   * Reloads the route data
+   */
   reload(): void
+
+  /**
+   * Reloads the routes (templates, components, everything)
+   */
+  restart(): void
 }
+
+type PlatformLogger = Pick<Console, 'clear' | 'debug' | 'log' | 'info' | 'warn' | 'error'>
 
 export type StateWithActions = State & Actions
 
@@ -78,7 +91,11 @@ export interface PlatformConfig {
       html: string
     }
     temp: string
-    artifacts: string
+    artifacts: {
+      root: string
+      plugins: string
+      templates: string
+    }
     public: string
     plugins: string
     nodeModules: string
@@ -86,34 +103,22 @@ export interface PlatformConfig {
   plugins: PluginsConfig
   data: DataConfig
   routes: RoutesConfig
-  siteRoot: string | Promise<string> | ((state: Readonly<State>) => string) | ((state: Readonly<State>) => Promise<string>) | undefined
+  siteRoot: Resolvable<string, Readonly<State>> | undefined
+  silent: boolean
+  verbose: boolean
 }
 
-export type RoutesConfig =
-  | RouteConfigList
-  | RouteConfigsPromise
-  | SyncRoutesConfig
-  | AsyncRoutesConfig
+export type Resolvable<T, F = undefined> = T | Awaitable<T> | Creatable<T, F> | Creatable<Awaitable<T>, F>
+export type Awaitable<T> = Promise<T>
+export type Creatable<T, F> = (input: F) => T
 
+export type RoutesConfig = Resolvable<RouteConfigList>
 export type RouteConfigList = RouteConfig[]
-export type RouteConfigsPromise = Promise<RouteConfigList>
-export type SyncRoutesConfig = () => RouteConfigList
-export type AsyncRoutesConfig = () => RouteConfigsPromise
 
-export type PluginsConfig =
-  | PluginConfigList
-  | PluginConfigsPromise
-  | SyncPluginsConfig
-  | AsyncPluginsConfig
-
+export type PluginsConfig = Resolvable<PluginConfigList>
 export type PluginConfigList = PluginConfig[]
-export type PluginConfigsPromise = Promise<PluginConfigList>
-export type SyncPluginsConfig = () => PluginConfigList
-export type AsyncPluginsConfig = () => PluginConfigsPromise
 
-export type DataConfig = unknown | (() => unknown) | AsyncDataConfig
-
-export type AsyncDataConfig = () => Promise<unknown>
+export type DataConfig = Resolvable<unknown, undefined>
 
 export type RouteConfig = {
   path: string
@@ -145,7 +150,7 @@ export type ResolvedPluginList = ResolvedPlugin[]
 
 export type PluginConfig = string | [string, PluginConfigOptions]
 
-export type PluginConfigOptions = Record<string, unknown>
+export type PluginConfigOptions = Omit<Record<string, unknown>, 'plugins'> & { plugins?: PluginsConfig }
 
 /**
  * This denotes the shape of the static.config object default export. It will,
@@ -161,6 +166,8 @@ export interface AppConfig {
   routes?: PlatformConfig['routes']
   data?: PlatformConfig['data']
   siteRoot?: PlatformConfig['siteRoot']
+  verbose?: boolean
+  silent?: boolean
 
   /**
    * @deprecated use AppConfig['routes'] instead
@@ -188,9 +195,30 @@ export type ConfigCallback = (state: State) => void
 type PluginHook<T extends object> = ((opts: Readonly<T>) => T) | ((opts: Readonly<T>) => Promise<T>)
 
 /**
+ * Runs before state is read when preparing the directories (output, dist, temp, etc.)
+ */
+export type DirectoriesGetStateHook = PluginHook<{ state: State }>
+
+/**
+ * Runs after directories are prepared (for plugins to create/prepare additional io)
+ */
+export type DirectoriesBeforeUseHook = PluginHook<{ state: State }>
+
+/**
  * Runs before state is read when creating the index.html file
  */
 export type IndexHtmlGetStateHook = PluginHook<{ state: State }>
+
+
+export type ArtifactsPluginGetStateHook = PluginHook<{ state: State }>
+
+export type ArtifactsPluginOutputHook = PluginHook<{ state: State, artifact: string }>
+
+
+export type ArtifactsTemplateGetStateHook = PluginHook<{ state: State }>
+
+export type ArtifactsTemplateOutputHook = PluginHook<{ state: State, artifact: string }>
+
 
 /**
  * Runs before the generated html is output to disk
@@ -226,8 +254,11 @@ export type SiteDataGetStateHook = PluginHook<{ state: State }>
 
 export type SiteDataBeforeMergeHook = PluginHook<{ state: State, site: unknown }>
 
+
 export type PlatformPlugins = PlatformPluginHooks
 export type PlatformPluginHooks = {
+  beforeDirectories: DirectoriesGetStateHook
+  afterDirectories: DirectoriesBeforeUseHook
   beforeIndexHtml: IndexHtmlGetStateHook
   beforeIndexHtmlOutput: IndexHtmlOutputHook
   beforeWebpack: WebpackGetStateHook
@@ -235,10 +266,31 @@ export type PlatformPluginHooks = {
   beforeRoutes: RoutesGetStateHook
   beforeRoutesResolve: RoutesBeforeResolveHook
   afterRoutes: RoutesBeforeMergeHook
+  beforePluginArtifacts: ArtifactsPluginGetStateHook
+  beforePluginArtifactsOutput: ArtifactsPluginOutputHook
+  beforeTemplateArtifacts: ArtifactsTemplateGetStateHook
+  beforeTemplateArtifactsOutput: ArtifactsTemplateOutputHook
   beforeSiteData: SiteDataGetStateHook
   afterSiteData: SiteDataBeforeMergeHook
 }
 
-export type AppPlatformPlugin<T extends object = {}> = PlatformPluginFactory<T> | PlatformPlugin
+export type UserPlatformPlugin<T extends object = {}> = PlatformPluginFactory<T> | PlatformPlugin
 export type PlatformPluginFactory<T extends object = {}> = (options: T) => PlatformPlugin
 export type PlatformPlugin = { hooks: Partial<PlatformPluginHooks> } | Partial<PlatformPluginHooks>
+
+export type UserBrowserPlugin<T extends object = {}> = BrowserPluginFactory<T> | BrowserPlugin
+export type BrowserPluginFactory<T extends object = {}> = (options: T) => BrowserPlugin
+export type BrowserPlugin = {
+  StaticRoot?: (previous: StaticRootComponent) => StaticRootComponent
+  StaticRoutes?: (previous: StaticRoutesFunction | null | undefined) => StaticRoutesFunction | null | undefined
+}
+
+export type StaticRootComponent = React.ComponentType<{ children: React.ReactNode }>
+export type StaticRoutesFunction = (path: string, getComponentFor: GetComponentForPath) => React.ReactNode
+
+export interface StaticRoutesProps {
+  overridePath?: string
+  render?: StaticRoutesFunction | null
+  loading?: JSX.Element
+}
+type GetComponentForPath = (path: string) => React.ComponentType<unknown>

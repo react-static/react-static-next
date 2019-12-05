@@ -1,0 +1,1 @@
+export { sanitizeName } from './sanitzeName'

@@ -1,8 +1,12 @@
 import React from 'react'
-import { useRouteData } from '@react-static/core'
+import { useCurrentRouteData } from '@react-static/core'
+
+interface BlogRouteData {
+  item: number
+}
 
 export function Blog(): JSX.Element {
-  const { item } = useRouteData()
+  const { item } = useCurrentRouteData() as BlogRouteData
 
   return (
     <div>

@@ -1,11 +1,12 @@
 import React from 'react'
 
-import { Root } from '@react-static/core/src/app/components/Root'
+import { StaticRoot, StaticRoutes } from '@react-static/core'
 
 export default function App(): JSX.Element {
   return (
-    <Root>
+    <StaticRoot>
       <h1>Hello from react-static</h1>
-    </Root>
+      <StaticRoutes />
+    </StaticRoot>
   )
 }

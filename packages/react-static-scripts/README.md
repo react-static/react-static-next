@@ -50,7 +50,7 @@ configuration file `static.config.ext` (where `ext` can be `.js` or `.ts`).
 
 This CLI automatically opens the default browser on the correct web address,
 and exposes where the "react-static" development routes live. For example, the
-project might be running on `http://localhost:8000/`, and the path exposed
+project might be running on `http://localhost:4000/`, and the path exposed
 during startup might be `__react-static-server__/0.1.0`. Browse to that path to
 get more information.
 

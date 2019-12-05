@@ -23,7 +23,7 @@
     "xmlbuilder": "^13.0.2"
   },
   "devDependencies": {
-    "@react-static/types": "~0.1.0",
-    "typescript": "3.7.2"
+    "@react-static/types": "^0.1.0",
+    "typescript": "^3.7.2"
   }
 }

@@ -3,7 +3,7 @@ import path from 'path'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
 import { State } from '@react-static/types'
-import { isDevelopment } from '@react-static/core/dist/universal/environment'
+import { isDevelopment } from '@react-static/core'
 
 /**
  * Creates the webpack configuration
@@ -26,7 +26,7 @@ export async function createWebpackConfig(
     plugins: projectPluginsPath
   } = state.config.paths
 
-  const builtConfig = {
+  const builtConfig: Configuration = {
     output: {
       path: projectDistPath.root,
       filename: '[name].js',
@@ -35,6 +35,9 @@ export async function createWebpackConfig(
     // Items above are overridden
     ...config,
     // Items below are augmented
+    /*entry: [
+
+    ],*/
     resolve: {
       // Search in these places, that is:
       // - project /src
@@ -128,6 +131,8 @@ export async function createWebpackConfig(
       new EnvironmentPlugin({
         NODE_ENV: process.env.NODE_ENV || null,
         REACT_STATIC_ENV: process.env.REACT_STATIC_ENV || 'development',
+        REACT_STATIC_PLUGINS_ARTIFACT: state.config.paths.artifacts.plugins,
+        REACT_STATIC_TEMPLATES_ARTIFACT: state.config.paths.artifacts.templates
       }),
       new HtmlWebpackPlugin({
         template: `!!raw-loader!${projectDistPath.html}`,

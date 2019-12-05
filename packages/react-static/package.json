@@ -7,7 +7,7 @@
   "repository": "https://github.com/react-static/react-static",
   "homepage": "http://react-static.js.org",
   "engines": {
-    "node": ">= 10.16.3"
+    "node": ">= 12.13.1"
   },
   "scripts": {
     "build": "exit 0",

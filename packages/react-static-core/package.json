@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "engines": {
-    "node": ">= 10.16.3"
+    "node": ">= 12.13.1"
   },
   "scripts": {
     "prebuild": "(rm tsconfig.tsbuildinfo -f || true)",
@@ -29,20 +29,20 @@
     "react-dom": "16.x"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.0",
-    "@babel/core": "^7.7.2",
-    "@babel/preset-env": "^7.7.1",
-    "@babel/preset-react": "^7.7.0",
-    "@babel/preset-typescript": "^7.7.2",
-    "@types/react": "^16.9.11",
+    "@babel/cli": "^7.7.4",
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-react": "^7.7.4",
+    "@babel/preset-typescript": "^7.7.4",
+    "@types/react": "^16.9.13",
     "@types/react-dom": "^16.9.4",
     "@types/socket.io-client": "^1.4.32",
     "@types/webpack-env": "^1.14.1",
-    "@typescript-eslint/eslint-plugin": "^2.8.0",
-    "@typescript-eslint/parser": "^2.8.0",
+    "@typescript-eslint/eslint-plugin": "^2.9.0",
+    "@typescript-eslint/parser": "^2.9.0",
     "babel-jest": "^24.9.0",
     "cross-env": "^6.0.3",
-    "eslint": "^6.6.0",
+    "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-import": "^2.18.2",
     "prettier": "^1.19.1",
@@ -53,10 +53,10 @@
     "typescript": "^3.7.2"
   },
   "dependencies": {
-    "core-js": "~3.4.1",
+    "core-js": "^3.4.5",
     "deepmerge": "^4.2.2",
     "hard-rejection": "^2.1.0",
-    "ky": "^0.16.0",
+    "ky": "^0.16.1",
     "ky-universal": "^0.3.0",
     "react-hot-loader": "^4.12.18",
     "socket.io-client": "^2.3.0"

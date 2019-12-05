@@ -1,8 +1,8 @@
-import { AppConfig, AsyncRoutesConfig } from '@react-static/types'
+import { AppConfig, RouteConfigList } from '@react-static/types'
 
 const config: AppConfig = {
   data: { global: { my: 'data' } },
-  routes: async (): ReturnType<AsyncRoutesConfig> => {
+  routes: async (): Promise<RouteConfigList>  => {
     const items = [
       { data: 'example', id: 1 },
       { data: 'other', id: 2 },

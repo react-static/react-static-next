@@ -1,0 +1,18 @@
+// All template imports should be here
+{{imports}}
+
+export const templates = {}
+export const routeTemplates = {}
+
+function registerTemplate(templatePath, template) {
+  templates[templatePath] = template
+}
+
+function assignTemplate(routePath, templatePath) {
+  routeTemplates[routePath] = templatePath
+}
+
+// Each template should be registered here
+{{evaluation}}
+
+export default templates

@@ -1,0 +1,21 @@
+// All plugin imports should be here
+{{imports}}
+
+// Each plugin should be executed with its options here
+const evaluated = [
+  {{evaluation}}
+]
+
+const reduced = evaluated.reduce((result, current) => {
+  if (current) {
+    Object.keys(current).forEach((key) => {
+      const value = current[key]
+      result[key] = result[key] || []
+      result[key].push(value)
+    })
+  }
+
+  return result
+}, {})
+
+export default reduced

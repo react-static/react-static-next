@@ -1,0 +1,36 @@
+{
+  "name": "@react-static/plugin-react-router",
+  "description": "Plugin for React Static 8+ projects. Uses react-router-dom to provide routing.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-plugin-react-router",
+  "homepage": "http://react-static.js.org",
+  "scripts": {
+    "prebuild": "(rm tsconfig.tsbuildinfo -f || true)",
+    "build": "yarn build:incremental --delete-dir-on-start && yarn build:declarations && cp package.json dist/",
+    "build:incremental": "cross-env BABEL_ENV=build yarn babel src --out-dir dist --source-maps --extensions .ts,.tsx --root-mode upward --no-comments",
+    "build:declarations": "yarn tsc --emitDeclarationOnly",
+    "build:declarations:watch": "yarn build:declarations --watch",
+    "watch": "yarn build:incremental --watch",
+    "lint": "eslint .",
+    "type-check": "yarn tsc --noEmit",
+    "type-check:watch": "yarn type-check --watch",
+    "test": "yarn jest",
+    "test:watch": "yarn test --watch"
+  },
+  "peerDependencies": {
+    "@react-static/core": "0.x",
+    "react": "16.x",
+    "react-router-dom": "5.x"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@react-static/core": "^0.1.0",
+    "@react-static/types": "^0.1.0",
+    "@types/react-router-dom": "^5.1.3",
+    "react": "^16.12.0",
+    "react-router-dom": "^5.1.2",
+    "typescript": "^3.7.2"
+  }
+}

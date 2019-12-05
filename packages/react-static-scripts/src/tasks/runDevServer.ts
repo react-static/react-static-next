@@ -20,13 +20,12 @@ import { State, StateWithActions } from '@react-static/types'
 const { version } = require('../../package.json')
 
 const WEBPACK_HOOK_NAME = `react-static@${version}`
-const DEFAULT_DEV_SERVER_PORT = 8300
+const DEFAULT_DEV_SERVER_PORT = 4000
 const DEFAULT_DEV_SERVER_HOST = 'localhost'
 const PROCESS_REF: { current?: WebpackDevServer } = { current: undefined }
 const EMITTER_REF: { current?: MessageEmitters } = { current: undefined }
 
 interface RunDevServerOptions {
-  state: State
   config: Configuration
 }
 
@@ -50,6 +49,7 @@ PrefetchExclusions.add('${routePath}')
 }
 
 export async function runDevServer(
+  state: Readonly<State>,
   options: RunDevServerOptions
 ): Promise<StateWithActions> {
   // This node process already has a registered dev server. This can happen
@@ -57,16 +57,24 @@ export async function runDevServer(
   // that case, instead of starting a new dev server, send a reload message.
   if (PROCESS_REF.current) {
     // Build dev routes?
-    console.log('TODO: build dev routes')
+    state.logger.info('TODO: build dev routes, reloading emitter ref')
     // Send a reload to the client
     EMITTER_REF.current && EMITTER_REF.current.reload()
-    return { ...options.state, ...EMITTER_REF.current! }
+
+    return {
+      ...state,
+      ...EMITTER_REF.current!,
+      restart: (): void => {
+        runDevServer(state, options)
+      }
+    }
   }
 
-  return startDevServer(options)
+  return startDevServer(state, options)
 }
 
 async function withHostAndPort(
+  state: Readonly<State>,
   config: RunDevServerOptions['config']
 ): Promise<{ messagePort: number; config: RunDevServerOptions['config'] }> {
   const intendedPort = Number(
@@ -76,7 +84,7 @@ async function withHostAndPort(
   const [port, messagePort] = await findAvailablePorts(intendedPort, 2)
 
   if (intendedPort !== port) {
-    console.log(
+    state.logger.warn(
       chalk`{red Warning!} Port {yellowBright ${intendedPort +
         ''}} is not available. Using port {green ${port + ''}} instead!`
     )
@@ -100,10 +108,11 @@ async function withHostAndPort(
 }
 
 async function startDevServer(
+  state: Readonly<State>,
   options: RunDevServerOptions,
 ): Promise<StateWithActions> {
-  const { config, messagePort } = await withHostAndPort(options.config)
-  const devConfig = await createWebpackConfig(config, options.state)
+  const { config, messagePort } = await withHostAndPort(state, options.config)
+  const devConfig = await createWebpackConfig(config, state)
   const devCompiler = webpack(devConfig)
 
   const devServerConfig: WebpackDevServer.Configuration = {
@@ -117,7 +126,7 @@ async function startDevServer(
         stats: 'errors-only',
         noInfo: true,*/
     ...devConfig.devServer,
-    before: buildDevBefore(devConfig, options.state.data, { messagePort }),
+    before: buildDevBefore(state, devConfig, { messagePort }),
     /*
         hotOnly: true,
         watchOptions: {
@@ -133,16 +142,16 @@ async function startDevServer(
         */
   }
 
-  console.log(`Starting server (${WEBPACK_HOOK_NAME}: ${ROUTE_PREFIX})`)
+  state.logger.info(`Starting server (${WEBPACK_HOOK_NAME}: ${ROUTE_PREFIX})`)
   // time(chalk.green('[\u2713] Application Bundled'))
 
-  addHook(devCompiler.hooks.invalid, hookOnBundleInvalidated())
-  addHook(devCompiler.hooks.done, hookOnBundleDone())
+  addHook(devCompiler.hooks.invalid, hookOnBundleInvalidated(state))
+  addHook(devCompiler.hooks.done, hookOnBundleDone(state))
 
-  addHookOnce(devCompiler.hooks.done, hookOnBundleDoneFirstTime(devConfig))
+  addHookOnce(devCompiler.hooks.done, hookOnBundleDoneFirstTime(state, devConfig))
 
   // TODO: remove this line
-  console.log(JSON.stringify(devServerConfig, undefined, 2) + '\n')
+  state.logger.debug(JSON.stringify(devServerConfig, undefined, 2) + '\n')
 
   // Start the webpack dev server.
   const devServer = (PROCESS_REF.current = new WebpackDevServer(
@@ -153,7 +162,7 @@ async function startDevServer(
   await new Promise((resolve, reject) => {
     devServer.listen(devServerConfig.port!, devServerConfig.host!, (err) => {
       if (err) {
-        console.error(
+        state.logger.error(
           `Listening on ${devServerConfig.host}:${devServerConfig.host} failed: ${err}`
         )
         return reject(err)
@@ -172,7 +181,13 @@ async function startDevServer(
     return state
     */
 
-  return { ...options.state, ...EMITTER_REF.current! }
+  return {
+    ...state,
+    ...EMITTER_REF.current!,
+    restart: (): void => {
+      runDevServer(state, options)
+    }
+  }
 }
 
 /**
@@ -204,8 +219,8 @@ function asyncRoute<T extends { [key: string]: string }>(
  * @param messagePort
  */
 function buildDevBefore(
+  state: Readonly<State>,
   options: RunDevServerOptions['config'],
-  data: RunDevServerOptions['state']['data'],
   { messagePort }: { messagePort: number }
 ): WebpackDevServer.Configuration['before'] {
   return (app, server, compiler): Application => {
@@ -216,7 +231,7 @@ function buildDevBefore(
     app.get(
       ROUTES.queryMessagePort,
       asyncRoute(async (_, res) => {
-        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.queryMessagePort}}`)
+        state.logger.info(chalk`{yellowBright GET} {greenBright ${ROUTES.queryMessagePort}}`)
         res.send({ port: messagePort })
       })
     )
@@ -230,10 +245,10 @@ function buildDevBefore(
     app.get(
       ROUTES.siteData,
       asyncRoute(async (_, res, next) => {
-        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.siteData}}`)
+        state.logger.debug(chalk`{yellowBright GET} {greenBright ${ROUTES.siteData}}`)
 
         try {
-          res.send({ dev: 'some-site-data', actual: data.site })
+          res.send({ dev: 'some-site-data',  ...(state.data.site as object || {}) })
         } catch (err) {
           res.status(500)
           res.send(err)
@@ -258,10 +273,10 @@ function buildDevBefore(
         const { 0: routePath } = req.params
 
         const normalized = RoutePath.normalize(routePath)
-        console.log(data)
-        const lookup = data.routes.find((route) => route && (route as { path: string }).path === normalized)
+        state.logger.debug(state.data)
+        const lookup = state.data.routes.find((route) => route && (route as { path: string }).path === normalized)
 
-        console.log(chalk`{yellowBright GET} {greenBright ${ROUTES.routeData}} with "${normalized}"`)
+        state.logger.debug(chalk`{yellowBright GET} {greenBright ${ROUTES.routeData}} with "${normalized}"`)
 
         // TODO: find route
         const route = normalized !== '/missing' && lookup
@@ -272,8 +287,15 @@ function buildDevBefore(
           throw error
         }
 
+        console.log("data", lookup)
+
         //const routeData = await getRouteData(route, latestState)
-        res.json({ dev: { routePath: normalized, params: JSON.stringify(req.params) }, actual: lookup })
+        res.json({
+          ___dev: { routePath: normalized, params: JSON.stringify(req.params) },
+
+          data: (lookup || { data: {} }).data,
+          template: (lookup || { template: null }).template
+        })
       })
     )
 
@@ -344,15 +366,15 @@ function addHookOnce<T extends Hooks>(
 type InvalidatedHook = Parameters<Compiler['hooks']['invalid']['tap']>[1]
 type DoneHook = Parameters<Compiler['hooks']['done']['tap']>[1]
 
-function hookOnBundleInvalidated(): InvalidatedHook {
+function hookOnBundleInvalidated(state: Readonly<State>): InvalidatedHook {
   return (fileName: string, changeTime: Date): void => {
-    console.log('\nFile changed:', chalk.greenBright(fileName))
+    state.logger.log('\nFile changed:', chalk.greenBright(fileName))
   }
 }
 
-function hookOnBundleDoneFirstTime(config: Configuration): DoneHook {
+function hookOnBundleDoneFirstTime(state: Readonly<State>, config: Configuration): DoneHook {
   return (stats: Stats): void => {
-    console.log(
+    state.logger.info(
       `${chalk.green('[\u2713] DevServer running at')} ${chalk.blue(
         `http://${config!.devServer!.host}:${config!.devServer!.port}`
       )}`
@@ -360,7 +382,7 @@ function hookOnBundleDoneFirstTime(config: Configuration): DoneHook {
   }
 }
 
-function hookOnBundleDone(): DoneHook {
+function hookOnBundleDone(state: Readonly<State>): DoneHook {
   return (stats: Stats): void => {
     const messages = stats.toJson({}, true)
 
@@ -368,9 +390,9 @@ function hookOnBundleDone(): DoneHook {
     const hasWarnings = messages.warnings.length
 
     if (!isSuccessful) {
-      console.log(chalk.red('[\u274C] Application bundling failed'))
-      console.error(chalk.red(messages.errors.join('\n')))
-      console.warn(chalk.yellowBright(messages.warnings.join('\n')))
+      state.logger.warn(chalk.red('[\u274C] Application bundling failed'))
+      state.logger.error(chalk.red(messages.errors.join('\n')))
+      state.logger.warn(chalk.yellowBright(messages.warnings.join('\n')))
       return
     }
 
@@ -378,13 +400,13 @@ function hookOnBundleDone(): DoneHook {
       return
     }
 
-    console.log(
+    state.logger.info(
       chalk.yellowBright(
         `\n[\u0021] There were ${messages.warnings.length} warnings during compilation\n`
       )
     )
     messages.warnings.forEach((message, index) => {
-      console.warn(`[warning ${index}]: ${message}`)
+      state.logger.warn(`[warning ${index}]: ${message}`)
     })
   }
 }

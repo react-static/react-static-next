@@ -1,7 +1,6 @@
 import { delay } from '../delay'
 import { fetchSiteInfo } from '../fetch/fetchSiteInfo'
 import { useReloadOnChange } from './useReloadOnChange'
-import { FetchError } from '../fetch/FetchError'
 
 const LOADED_SITE_DATA: { current: object | undefined } = { current: undefined }
 const LOADING_SITE_DATA: { current: Promise<unknown> | undefined } = {
@@ -51,7 +50,6 @@ async function loadAndStore(): Promise<object> {
  * In production, this file lives near the site root or public assets path
  * In development, this file is "generated" on the fly
  *
- * @export
  * @returns {object}
  */
 export function useSiteData(): object {

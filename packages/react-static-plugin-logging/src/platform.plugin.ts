@@ -6,41 +6,66 @@ interface PluginOptions {
 }
 
 export default ({ include, exclude }: PluginOptions = {}): PlatformPlugin => {
+
   const defaultLoggingHooks: PlatformPlugin = {
     beforeSiteData: (opts) => {
-      console.log('@react-static/logging: beforeSiteData');
+      opts.state.logger.log('@react-static/logging: beforeSiteData');
       return opts
     },
     afterSiteData: (opts) => {
-      console.log('@react-static/logging: afterSiteData');
+      opts.state.logger.log('@react-static/logging: afterSiteData');
       return opts
     },
     beforeRoutes: (opts) => {
-      console.log('@react-static/logging: beforeRoutes');
+      opts.state.logger.log('@react-static/logging: beforeRoutes');
       return opts
     },
     beforeRoutesResolve: (opts) => {
-      console.log('@react-static/logging: beforeRoutesResolve');
+      opts.state.logger.log('@react-static/logging: beforeRoutesResolve');
       return opts
     },
     afterRoutes: (opts) => {
-      console.log('@react-static/logging: afterRoutes');
+      opts.state.logger.log('@react-static/logging: afterRoutes');
+      return opts
+    },
+    beforeDirectories: (opts) => {
+      opts.state.logger.log('@react-static/logging: beforeDirectories');
+      return opts
+    },
+    afterDirectories: (opts) => {
+      opts.state.logger.log('@react-static/logging: afterDirectories');
+      return opts
+    },
+    beforePluginArtifacts: (opts) => {
+      opts.state.logger.log('@react-static/logging: beforePluginArtifacts');
+      return opts
+    },
+    beforePluginArtifactsOutput: (opts) => {
+      opts.state.logger.log('@react-static/logging: beforePluginArtifactsOutput');
+      return opts
+    },
+    beforeTemplateArtifacts: (opts) => {
+      opts.state.logger.log('@react-static/logging: beforeTemplateArtifacts');
+      return opts
+    },
+    beforeTemplateArtifactsOutput: (opts) => {
+      opts.state.logger.log('@react-static/logging: beforeTemplateArtifactsOutput');
       return opts
     },
     beforeIndexHtml: (opts) => {
-      console.log('@react-static/logging: beforeIndexHtml');
+      opts.state.logger.log('@react-static/logging: beforeIndexHtml');
       return opts
     },
     beforeIndexHtmlOutput: (opts) => {
-      console.log('@react-static/logging: beforeIndexHtmlOutput');
+      opts.state.logger.log('@react-static/logging: beforeIndexHtmlOutput');
       return opts
     },
     beforeWebpack: (opts) => {
-      console.log('@react-static/logging: beforeWebpack');
+      opts.state.logger.log('@react-static/logging: beforeWebpack');
       return opts
     },
     afterWebpack: (opts) => {
-      console.log('@react-static/logging: afterWebpack');
+      opts.state.logger.log('@react-static/logging: afterWebpack');
       return opts
     },
   }

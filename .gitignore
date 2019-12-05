@@ -1,6 +1,7 @@
 node_modules/
 packages/*/node_modules
 packages/*/dist
+packages/*/tsconfig.tsbuildinfo
 lerna-debug.log
 npm-debug.log
 yarn-error.log

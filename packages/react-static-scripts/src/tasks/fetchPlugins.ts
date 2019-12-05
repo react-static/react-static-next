@@ -16,7 +16,8 @@ const DEPRECATED_APP_PLUGIN_BASE_NAME = 'browser.api'
 const LOOKUPS: ReadonlyArray<Resolver> = Object.freeze([
   (state: Readonly<State>, name: string): string => path.join(state.config.paths.plugins, path.normalize(name)),
   (state: Readonly<State>, name: string): string => path.join(state.config.paths.src, 'plugins', path.normalize(name)),
-  (state: Readonly<State>, name: string): string => path.join(state.config.paths.nodeModules, path.normalize(name))
+  (state: Readonly<State>, name: string): string => path.join(state.config.paths.nodeModules, path.normalize(name)),
+  (    _: Readonly<State>, name: string): string => path.join(__dirname, '..', '..', '..', path.normalize(name.replace('@react-static/', 'react-static-')))
 ])
 
 /**
@@ -45,11 +46,13 @@ export async function fetchPlugins(state: Readonly<State>): Promise<State> {
 }
 
 async function mergePluginsIntoState(state: Readonly<State>, plugins: ResolvedPluginList): Promise<State> {
-  return { ...state, data: { ...state.data, plugins }, plugins: PlatformPlugins(plugins) }
+  return { ...state, data: { ...state.data, plugins }, plugins: PlatformPlugins(state, plugins) }
 }
 
+const NO_NESTED_PLUGINS = Object.freeze([])
+
 async function normalisePlugins(plugins: Readonly<PluginsConfig>): Promise<NormalisedPluginConfig[]> {
-  if (!plugins) {
+  if (!plugins || plugins === NO_NESTED_PLUGINS) {
     return []
   }
 
@@ -58,13 +61,19 @@ async function normalisePlugins(plugins: Readonly<PluginsConfig>): Promise<Norma
     return normalisePlugins(resolvedPlugins())
   }
 
-  return (resolvedPlugins as PluginConfig[]).map((item) => {
-    if (typeof item === 'string') {
-      return [item, {}]
-    }
+  const normalisedPlugins = await Promise.all((resolvedPlugins as PluginConfig[])
+    .map(async (item): Promise<NormalisedPluginConfig[]> => {
+      if (typeof item === 'string') {
+        return [[item, {}]]
+      }
 
-    return item
-  })
+      const { plugins: nested, ...options } = item[1]
+
+      // Resolve nested plugins, if any
+      return [[item[0], options], ...(await normalisePlugins(nested || NO_NESTED_PLUGINS))]
+    }))
+
+  return normalisedPlugins.flat()
 }
 
 class PluginNotResolved extends Error {
@@ -74,6 +83,9 @@ The plugin '${name}' could not be resolved.
 
 Here are the paths used for lookup, in this exact order:
 ${resolved.map((resolution) => `- ${resolution}`).join('\n')}
+
+Are you certain that you have added the plugin to your (dev)Dependencies, in
+package.json, or that you have created the correct folder?
     `.trim())
 
     Error.captureStackTrace(this, this.constructor)
@@ -90,10 +102,10 @@ function resolvePlugin(state: Readonly<State>, [name, options]: NormalisedPlugin
     // TODO: check if files are present
     if (fse.existsSync(directory)) {
 
-      const platformPath = resolvePluginEntry(directory, PLATFORM_PLUGIN_BASE_NAMES, DEPRECATED_PLATFORM_PLUGIN_BASE_NAME)
-      const appPath = resolvePluginEntry(directory, APP_PLUGIN_BASE_NAMES, DEPRECATED_APP_PLUGIN_BASE_NAME)
+      const platformPath = resolvePluginEntry(directory, PLATFORM_PLUGIN_BASE_NAMES, DEPRECATED_PLATFORM_PLUGIN_BASE_NAME, state)
+      const appPath = resolvePluginEntry(directory, APP_PLUGIN_BASE_NAMES, DEPRECATED_APP_PLUGIN_BASE_NAME, state)
 
-      console.log(`Resolved plugin '${name}'.`)
+      state.logger.debug(`resolvePlugin: '${name}'`)
 
       return {
         name,
@@ -108,7 +120,7 @@ function resolvePlugin(state: Readonly<State>, [name, options]: NormalisedPlugin
   throw new PluginNotResolved(name, LOOKUPS.map((lookup) => lookup(state, name)))
 }
 
-function resolvePluginEntry(basePath: string, fileBases: string[], deprecatedFileBase: string): string | false {
+function resolvePluginEntry(basePath: string, fileBases: string[], deprecatedFileBase: string, state: Readonly<State>): string | false {
   for (const relativeDir of PLUGIN_BUILT_DIRECTORIES) {
     for (const extension of PLUGIN_EXTENSIONS) {
       for (const fileBase of fileBases) {
@@ -123,7 +135,7 @@ function resolvePluginEntry(basePath: string, fileBases: string[], deprecatedFil
 
     for (const extension of PLUGIN_EXTENSIONS) {
       if (fse.existsSync(path.join(basePath, relativeDir, deprecatedFileBase + extension))) {
-        console.warn(`
+        state.logger.warn(`
   The plugin at "${basePath}" is not compatible with your version of
   React Static. If you're the plugin author, follow the migration guide. This
   plugin is not enabled, and the script will attempt to continue as if it's not
@@ -140,18 +152,31 @@ function resolvePluginEntry(basePath: string, fileBases: string[], deprecatedFil
   return false
 }
 
-type PluginsShape = State['plugins']
+type PlatformPluginsShape = State['plugins']
 
 async function passThrough<T extends object>(opts: Readonly<T>): Promise<T> {
   return { ...opts }
 }
 
-function PlatformPlugins(plugins: ResolvedPluginList): PluginsShape {
-  const platformPlugins = plugins.filter((plugin) => plugin.platform)
+function PlatformPlugins(state: Readonly<State>, plugins: ResolvedPluginList): PlatformPluginsShape {
+  const platformPlugins = plugins.filter((plugin) => {
+    if (!plugin.platform) {
+      state.logger.debug(`PlatformPlugins: Plugin '${plugin.name}' has no platform file.`)
+      return false
+    }
 
-  const result: PluginsShape = {
+    return true
+  })
+
+  const result: PlatformPluginsShape = {
+    beforeDirectories: passThrough,
+    afterDirectories: passThrough,
     beforeIndexHtml: passThrough,
     beforeIndexHtmlOutput: passThrough,
+    beforePluginArtifacts: passThrough,
+    beforePluginArtifactsOutput: passThrough,
+    beforeTemplateArtifacts: passThrough,
+    beforeTemplateArtifactsOutput: passThrough,
     beforeWebpack: passThrough,
     afterWebpack:passThrough,
     beforeRoutes: passThrough,
@@ -161,18 +186,18 @@ function PlatformPlugins(plugins: ResolvedPluginList): PluginsShape {
     afterSiteData: passThrough
   }
 
-  return requireAndReduce(result, platformPlugins)
+  return requireAndReduce(result, platformPlugins, state)
 }
 
-function requireAndReduce(initial: PluginsShape, plugins: ResolvedPluginList): PluginsShape {
-  return plugins.reduce((result: PluginsShape, plugin: ResolvedPlugin) => {
+function requireAndReduce(initial: PlatformPluginsShape, plugins: ResolvedPluginList, state: Readonly<State>): PlatformPluginsShape {
+  return plugins.reduce((result: PlatformPluginsShape, plugin: ResolvedPlugin) => {
     if (!plugin.platform) {
       // SHouldn't ever happen, because filtering happens before
-      console.log(`Plugin ${plugin.name} has no platform file.`)
+      state.logger.log(`PlatformPlugins: Plugin '${plugin.name}' has no platform file.`)
       return result
     }
 
-    console.log(`Requiring ${plugin.platform}`)
+    state.logger.debug(`PlatformPlugins: Requiring ${plugin.platform}`)
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     let pluginExports = require(plugin.platform)
 
@@ -202,7 +227,8 @@ function requireAndReduce(initial: PluginsShape, plugins: ResolvedPluginList): P
     }
 
     // Chain them
-    (Object.keys(pluginExports) as Array<keyof PluginsShape>).forEach((hookName) => {
+    (Object.keys(pluginExports) as Array<keyof PlatformPluginsShape>).forEach((hookName) => {
+      state.logger.debug(`PlatformPlugins: '${plugin.name}' hooked on ${hookName}`)
       result = { ...result, [hookName]: chainPlugin(result[hookName], pluginExports[hookName]) }
     })
 
@@ -210,10 +236,8 @@ function requireAndReduce(initial: PluginsShape, plugins: ResolvedPluginList): P
   }, initial)
 }
 
-
-
-function chainPlugin<T extends keyof PluginsShape>(current: PluginsShape[T], next: PluginsShape[T]): PluginsShape[T] {
-  const chained = async (...args: Parameters<PluginsShape[T]>): Promise<unknown> => {
+function chainPlugin<T extends keyof PlatformPluginsShape>(current: PlatformPluginsShape[T], next: PlatformPluginsShape[T]): PlatformPluginsShape[T] {
+  const chained = async (...args: Parameters<PlatformPluginsShape[T]>): Promise<unknown> => {
     const input = args[0]
     // TODO: fix the conditional type here to always know which plugin whe're talking about
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -221,5 +245,5 @@ function chainPlugin<T extends keyof PluginsShape>(current: PluginsShape[T], nex
     return next(output)
   }
 
-  return chained as PluginsShape[T]
+  return chained as PlatformPluginsShape[T]
 }

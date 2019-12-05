@@ -151,7 +151,7 @@ async function showNonProjectDirectoryMessage(): Promise<void> {
 
   const jScripts = json("scripts")
 
-  console.log(
+  console.error(
     "  " +
       `
   Can't run a ${xPackage} command in a non-project directory. This cli
@@ -182,7 +182,7 @@ async function showRedirectMessage(): Promise<void> {
 
   const jScripts = json("scripts")
 
-  console.log(
+  console.warn(
     `
   Forwarding the command to ${xPackage}.
 

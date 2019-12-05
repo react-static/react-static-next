@@ -38,7 +38,6 @@ export function onReload(listener: () => void): () => void {
 
   return (): void => {
     const index = listeners.indexOf(listener)
-    console.log('Trying to remove listener', index)
     if (index !== -1) {
       listeners.splice(index, 1)
     }

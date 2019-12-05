@@ -19,7 +19,7 @@ export async function fetchRoutes(rawState: Readonly<State>): Promise<State> {
 
   if (!state.config.routes) {
     const pluginNames = state.data.plugins.map(({ name }) => name).join(', ')
-    console.warn(`
+    state.logger.warn(`
 There are no routes to normalise or resolve. This is probably a mistake. Make
 sure that there is at least one route in the "routes" list in your static
 configuration file (static.config.ext) or that there is at least one plugin
@@ -30,7 +30,7 @@ The plugins currently loaded are: ${pluginNames}.
     return state
   }
 
-  console.log('Fetching routes...')
+  state.logger.log('fetchRoutes: Fetching routes...')
 
   const normalisedRoutes = await normaliseRoutes(state.config.routes)
 
@@ -39,7 +39,7 @@ The plugins currently loaded are: ${pluginNames}.
     .then(({ routes, state }) => runBeforeMerge(state, routes))
     .then(({ routes, state }) => mergeRoutesIntoState(state, routes))
 
-  console.log(`${nextState.data.routes.length} routes fetched`)
+  state.logger.log(`fetchRoutes: ${nextState.data.routes.length} routes fetched`)
 
   return nextState
 }

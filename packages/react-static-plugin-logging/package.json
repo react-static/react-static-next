@@ -20,7 +20,7 @@
     "test:watch": "yarn test --watch"
   },
   "devDependencies": {
-    "@react-static/types": "~0.1.0",
-    "typescript": "3.7.2"
+    "@react-static/types": "^0.1.0",
+    "typescript": "^3.7.2"
   }
 }

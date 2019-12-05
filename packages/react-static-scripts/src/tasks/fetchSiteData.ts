@@ -6,7 +6,7 @@ export async function fetchSiteData(rawState: Readonly<State>): Promise<State> {
   if (!state.config.data) {
     return state
   }
-  console.log('Fetching site data...')
+  state.logger.log('fetchSiteData: Fetching site data...')
 
   let resolvedData = await state.config.data
   if (typeof resolvedData === 'function') {
