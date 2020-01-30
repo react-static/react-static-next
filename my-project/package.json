@@ -21,6 +21,7 @@
   ],
   "dependencies": {
     "@react-static/core": "link:..\\packages\\react-static-core",
+    "@react-static/plugin-framer-motion": "link:..\\packages\\react-static-plugin-framer-motion",
     "@react-static/plugin-logging": "link:..\\packages\\react-static-plugin-logging",
     "@react-static/plugin-react-router": "link:..\\packages\\react-static-plugin-react-router",
     "@react-static/plugin-sitemap": "link:..\\packages\\react-static-plugin-sitemap",
@@ -35,6 +36,7 @@
   "resolutions": {
     "@react-static/core": "link:..\\packages\\react-static-core",
     "@react-static/eslint-config": "link:..\\packages\\react-static-eslint-config",
+    "@react-static/plugin-framer-motion": "link:..\\packages\\react-static-plugin-framer-motion",
     "@react-static/plugin-logging": "link:..\\packages\\react-static-plugin-logging",
     "@react-static/plugin-react-router": "link:..\\packages\\react-static-plugin-react-router",
     "@react-static/plugin-sitemap": "link:..\\packages\\react-static-plugin-sitemap",

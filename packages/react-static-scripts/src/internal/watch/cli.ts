@@ -1,3 +1,7 @@
+/**
+ * Same as internal "build", but watches for changes.
+ */
+
 import { spawnSync } from 'child_process'
 import path from 'path'
 import fse from 'fs-extra'

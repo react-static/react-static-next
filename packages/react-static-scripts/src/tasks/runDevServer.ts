@@ -1,7 +1,6 @@
 /* eslint-disable import/no-dynamic-require, react/no-danger, import/no-mutable-exports */
 import chalk from 'chalk'
 import { Application, Request, Response, NextFunction } from 'express'
-import path from 'path'
 import webpack, { Configuration, Compiler, Stats } from 'webpack'
 import WebpackDevServer from 'webpack-dev-server'
 
@@ -9,7 +8,7 @@ import { findAvailablePorts } from './findAvailablePorts'
 import { createWebpackConfig } from './createWebpackConfig'
 import { runMessageServer, MessageEmitters } from './runMessageServer'
 
-import { ROUTES, ROUTE_PREFIX, RoutePath } from '@react-static/core'
+import { ROUTES, ROUTE_PREFIX, RoutePath, isDevelopment } from '@react-static/core'
 import { State, StateWithActions } from '@react-static/types'
 
 // Using a require here so that typescript does not include it in its
@@ -48,6 +47,21 @@ PrefetchExclusions.add('${routePath}')
   }
 }
 
+/**
+ * Starts the development server for react static which allows for in-memory
+ * webpack bundling (and all its plugins such as babel transpilation), as well
+ * as HMR/live reload.
+ *
+ * It also serves some development routes so that route data, site data, and
+ * other normally static resources can be changed on the fly, without the need
+ * for pre-rendering.
+ *
+ * The server address is logged and there is a HELP entry point, by default
+ * at its root: /__react-static-server__/:react-static-version:
+ *
+ * @param state
+ * @param options
+ */
 export async function runDevServer(
   state: Readonly<State>,
   options: RunDevServerOptions
@@ -90,15 +104,18 @@ async function withHostAndPort(
     )
   }
 
+  const shouldEnableHmr = isDevelopment()
+
   return {
     messagePort,
     config: {
       ...config,
+
       devServer: {
-        contentBase: path.join(process.cwd(), 'dist'),
+        contentBase: state.config.paths.dist.root,
         compress: true,
-        hot: true,
-        hotOnly: true,
+        hot: shouldEnableHmr,
+        hotOnly: shouldEnableHmr,
         host: DEFAULT_DEV_SERVER_HOST,
         ...config.devServer,
         port,

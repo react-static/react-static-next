@@ -1,5 +1,13 @@
 import { State } from '@react-static/types';
 
+/**
+ * Fetches the site data, as defined in static.config.ext. This is necessary
+ * because the site data can be a callback or even an asynchronous function
+ * that needs to be executed.
+ *
+ * The resolved data is served as the site data, and is merged into each
+ * individual route's data.
+ */
 export async function fetchSiteData(rawState: Readonly<State>): Promise<State> {
   const state = await runBeforeState(rawState)
 

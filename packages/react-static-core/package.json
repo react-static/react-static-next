@@ -8,6 +8,7 @@
   "homepage": "http://react-static.js.org",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "engines": {
     "node": ">= 12.13.1"
   },
@@ -25,39 +26,43 @@
     "test:watch": "yarn test --watch"
   },
   "peerDependencies": {
-    "react": "16.x",
-    "react-dom": "16.x"
+    "react": "^16.12",
+    "react-dom": "^16.12"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.4",
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
     "@babel/preset-react": "^7.7.4",
     "@babel/preset-typescript": "^7.7.4",
-    "@types/react": "^16.9.13",
+    "@types/http-cache-semantics": "^4.0.0",
+    "@types/lru-cache": "^5.1.0",
+    "@types/react": "^16.9.16",
     "@types/react-dom": "^16.9.4",
     "@types/socket.io-client": "^1.4.32",
     "@types/webpack-env": "^1.14.1",
-    "@typescript-eslint/eslint-plugin": "^2.9.0",
-    "@typescript-eslint/parser": "^2.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
     "babel-jest": "^24.9.0",
     "cross-env": "^6.0.3",
     "eslint": "^6.7.2",
     "eslint-config-prettier": "^6.7.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-import": "^2.19.1",
     "prettier": "^1.19.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-error-overlay": "^6.0.3",
+    "react-error-overlay": "^6.0.4",
     "sockjs-client": "^1.4.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.3"
   },
   "dependencies": {
-    "core-js": "^3.4.5",
+    "core-js": "^3.5.0",
     "deepmerge": "^4.2.2",
     "hard-rejection": "^2.1.0",
+    "http-cache-semantics": "^4.0.3",
     "ky": "^0.16.1",
     "ky-universal": "^0.3.0",
+    "lru-cache": "^5.1.1",
     "react-hot-loader": "^4.12.18",
     "socket.io-client": "^2.3.0"
   },

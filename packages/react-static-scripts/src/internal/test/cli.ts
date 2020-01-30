@@ -1,3 +1,8 @@
+/**
+ * The internal "test" command is to build react-static packages during the
+ * test step. This is NOT a project's test step, but the internal one.
+ */
+
 import { spawnSync } from 'child_process'
 
 const test = spawnSync(

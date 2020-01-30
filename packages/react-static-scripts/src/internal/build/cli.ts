@@ -1,3 +1,8 @@
+/**
+ * The internal "build" command is to build react-static packages during the
+ * build step. This is NOT a project's build step, but the internal one.
+ */
+
 import { spawnSync } from 'child_process'
 import path from 'path'
 import fse from 'fs-extra'

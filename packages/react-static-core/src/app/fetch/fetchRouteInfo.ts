@@ -25,7 +25,7 @@ function isPrefetchableRoute(routePath: string): boolean {
 
 function getRouteInfoRoot(): string {
   // TODO use public path or site root
-  return ''
+  return '.'
 }
 
 export async function fetchRouteInfo(
@@ -44,7 +44,7 @@ export async function fetchRouteInfo(
 
   const fetchPath = isDevelopment()
     ? ROUTES.routeData.replace('*', routePath)
-    : [getRouteInfoRoot(), routePath, 'route-info.json'].join('/')
+    : [getRouteInfoRoot(), routePath, '/route-info.json'].join('')
 
   return ky.get(fetchPath.replace('//', '/')).json().catch(async (err) => {
     if (err instanceof HTTPError) {

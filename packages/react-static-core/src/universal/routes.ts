@@ -1,4 +1,6 @@
-const version = require('../package.json')['version']
+import fse from 'fs-extra'
+const version = fse.readJSONSync('../../package.json')['version']
+
 export const ROUTE_PREFIX = `/__react-static-server__/${version}`
 
 export const ROUTES = Object.freeze({

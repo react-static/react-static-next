@@ -1,6 +1,18 @@
 import { State } from "@react-static/types";
 import { isDevelopment } from "@react-static/core";
 
+/**
+ * Creates a logger that will log to console, or a new Console, based on the
+ * availability. You can configure the verbosity using the configuration
+ * options such as "silent" and "verbose".
+ *
+ * By default, it will only show log() messages in (internal) development, and
+ * only show debug() messages when running with "verbose". When running with
+ * "silent", only error() messages are logged.
+ *
+ * The logger is passed into the state, so all hooks and plugins can access
+ * this particular logger, which is recommended.
+ */
 export function createLogger(rawState: Readonly<State>): State {
   const logger = typeof console !== 'undefined' ? console : new Console()
 

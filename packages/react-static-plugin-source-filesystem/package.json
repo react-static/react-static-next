@@ -28,6 +28,6 @@
   "devDependencies": {
     "@react-static/types": "^0.1.0",
     "@react-static/core": "^0.1.0",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.3"
   }
 }

@@ -1,11 +1,13 @@
 {
-  "name": "@react-static/plugin-logging",
+  "name": "@react-static/plugin-framer-motion",
   "version": "0.1.0",
-  "description": "Plugin for React Static 8+ projects: adds logging to the hooks of the React Static eco-system.",
+  "description": "Plugin for React Static 8+ projects: adds framer-motion support, along with support for animated routes.",
   "license": "MIT",
   "author": "Derk-Jan Karrenbeld <derk-jan@xpbytes.com>",
-  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-plugin-logging",
+  "repository": "https://github.com/react-static/react-static/tree/master/packages/react-static-plugin-framer-motion",
   "homepage": "http://react-static.js.org",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prebuild": "(rm tsconfig.tsbuildinfo -f || true)",
     "build": "yarn build:incremental --delete-dir-on-start && yarn build:declarations && cp package.json dist/",
@@ -19,8 +21,16 @@
     "test": "yarn jest",
     "test:watch": "yarn test --watch"
   },
+  "peerDependencies": {
+    "@react-static/core": "^0.1",
+    "react": "^16.8",
+    "react-dom": "^16.8",
+    "framer-motion": "^1.6"
+  },
   "devDependencies": {
+    "@react-static/core": "^0.1.0",
     "@react-static/types": "^0.1.0",
+    "framer-motion": "^1.6.17",
     "typescript": "^3.7.3"
   }
 }

@@ -319,6 +319,13 @@
   version "0.0.0"
   uid ""
 
+"@react-static/plugin-framer-motion@link:../packages/react-static-plugin-framer-motion":
+  version "0.1.0"
+
+"@react-static/plugin-framer-motion@link:..\\packages\\react-static-plugin-framer-motion":
+  version "0.0.0"
+  uid ""
+
 "@react-static/plugin-logging@link:../packages/react-static-plugin-logging":
   version "0.1.0"
 

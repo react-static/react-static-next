@@ -28,8 +28,15 @@ export async function createWebpackConfig(
 
   const builtConfig: Configuration = {
     output: {
-      path: projectDistPath.root,
-      filename: '[name].js',
+      // path: projectDistPath.root,
+      filename: isNotDevelopment ? '[name].[contentHash:8].js' : '[name].js',
+      chunkFilename: ['templates', '[name].[contentHash:8].js'].join('/'),
+      path: projectDistPath.assets,
+
+      // TODO publicPath: https://webpack.js.org/guides/public-path/
+
+      ...config.output
+      // publicPath: process.env.REACT_STATIC_PUBLIC_PATH || '/',
     },
     devtool: isNotDevelopment ? undefined : 'cheap-module-eval-source-map' as const,
     // Items above are overridden

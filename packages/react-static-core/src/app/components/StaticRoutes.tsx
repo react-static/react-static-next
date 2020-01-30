@@ -16,6 +16,7 @@ export type StaticRoutesProps = StaticRoutesPluginProps
 function getComponent(path: string): React.ComponentType<unknown> {
   const templatePath = suspendForRouteTemplate(path)
   const Template = getTemplate(templatePath)
+
   if (Template) {
     return Template
   }

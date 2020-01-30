@@ -1,3 +1,7 @@
+/**
+ * Same as internal "test", but watches for changes.
+ */
+
 import { spawnSync } from 'child_process'
 
 const watch = spawnSync('yarn', ['jest', '--watch'], { stdio: 'inherit' })

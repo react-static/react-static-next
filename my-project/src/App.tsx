@@ -14,6 +14,9 @@ import {
   StaticRoutes,
 } from '@react-static/core'
 
+import { AnimatedRoutes } from '@react-static/plugin-framer-motion'
+
+
 console.log('bootstrapping')
 bootstrap()
 
@@ -106,10 +109,16 @@ function UnsafeMissingRouteData(): JSX.Element {
   return <p>{JSON.stringify(data, null, 2)}</p>
 }
 
+const PAGE_ANIMATION = {
+  initial: { x: 300, opacity: 0 },
+  in: { x: 0, opacity: 1 },
+  out: { x: -300, opacity: 0 }
+}
+
 function Routes(): JSX.Element {
   return (
     <Fragment>
-      <StaticRoutes loading={<Loading />} render={
+      <AnimatedRoutes loading={<Loading />} animation={PAGE_ANIMATION} positionTransition={true} render={
         // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
         (path, getComponent) => {
           const Component = getComponent(path)
@@ -123,7 +132,6 @@ function Routes(): JSX.Element {
           )
         }
       } />
-      <UnsafeRouteData/>
     </Fragment>
   )
 }

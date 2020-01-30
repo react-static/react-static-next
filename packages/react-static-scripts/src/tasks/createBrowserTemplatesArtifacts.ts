@@ -4,11 +4,18 @@ import fse from 'fs-extra'
 
 import { sanitizeName } from '@react-static/core/dist/platform/utils'
 
+/**
+ * Creates the artifact file that is responsible for serving react-static
+ * templates in the browser. It creates, by default, a file called templates.js
+ * which in turn loads each of the project's templates.
+ *
+ * Since version 8.0.0, it does NOT alter the state itself, but hooks
+ * running before, during and after this task are able to.
+ *
+ */
 export async function createBrowserTemplatesArtifacts(rawState: Readonly<State>): Promise<State> {
   const state = await runBeforeState(rawState)
-
   const template = await readTemplate()
-
   const { routes, templates } = collectArtifacts(state)
 
   state.logger.debug(`createBrowserTemplatesArtifacts: outputting ${templates.length} templates for ${routes.length} unique routes`)
@@ -46,14 +53,17 @@ async function writeOutput({ state, artifact }: OutputOptions): Promise<State> {
 class IndexRouteNotDefined extends Error {
   constructor() {
     super(`
-There is no route with a path of / which means that there is no index route.
-
 Define a route with the path "/".
+
+There is no route with a path of / which means that there is no index route.
+At this moment, React Static requires there to be an index route, even if its
+just a redirect to the "actual home".
 `.trim())
   }
 }
 
 function collectArtifacts(state: Readonly<State>): { routes: RouteArtifact[], templates: TemplateArtifact[] } {
+
   const routes = state.data.routes
     .filter((route) => route.path)
     .filter((route, index, self) => self.findIndex((s) => s.path === route.path) === index)
