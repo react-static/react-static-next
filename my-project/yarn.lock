@@ -297,6 +297,9 @@
     "@types/yargs" "^13.0.0"
 
 "@react-static/core@link:../packages/react-static-core":
+  version "0.0.0"
+
+"@react-static/core@link:..\\packages\\react-static-core":
   version "0.1.0"
   dependencies:
     core-js "^3.4.5"
@@ -307,58 +310,50 @@
     react-hot-loader "^4.12.18"
     socket.io-client "^2.3.0"
 
-"@react-static/core@link:..\\packages\\react-static-core":
-  version "0.0.0"
-  uid ""
-
 "@react-static/eslint-config@^0.1.0":
   version "0.0.0"
-  uid ""
 
 "@react-static/eslint-config@link:..\\packages\\react-static-eslint-config":
   version "0.0.0"
-  uid ""
 
 "@react-static/plugin-framer-motion@link:../packages/react-static-plugin-framer-motion":
-  version "0.1.0"
+  version "0.0.0"
 
 "@react-static/plugin-framer-motion@link:..\\packages\\react-static-plugin-framer-motion":
-  version "0.0.0"
-  uid ""
+  version "0.1.0"
 
 "@react-static/plugin-logging@link:../packages/react-static-plugin-logging":
-  version "0.1.0"
+  version "0.0.0"
 
 "@react-static/plugin-logging@link:..\\packages\\react-static-plugin-logging":
-  version "0.0.0"
-  uid ""
+  version "0.1.0"
 
 "@react-static/plugin-react-router@link:../packages/react-static-plugin-react-router":
-  version "0.1.0"
+  version "0.0.0"
 
 "@react-static/plugin-react-router@link:..\\packages\\react-static-plugin-react-router":
-  version "0.0.0"
-  uid ""
+  version "0.1.0"
 
 "@react-static/plugin-sitemap@link:../packages/react-static-plugin-sitemap":
-  version "0.1.0"
-  dependencies:
-    xmlbuilder "^13.0.2"
+  version "0.0.0"
 
 "@react-static/plugin-sitemap@link:..\\packages\\react-static-plugin-sitemap":
-  version "0.0.0"
-  uid ""
-
-"@react-static/plugin-source-filesystem@link:../packages/react-static-plugin-source-filesystem":
   version "0.1.0"
   dependencies:
     xmlbuilder "^13.0.2"
 
-"@react-static/plugin-source-filesystem@link:..\\packages\\react-static-plugin-source-filesystem":
+"@react-static/plugin-source-filesystem@link:../packages/react-static-plugin-source-filesystem":
   version "0.0.0"
-  uid ""
+
+"@react-static/plugin-source-filesystem@link:..\\packages\\react-static-plugin-source-filesystem":
+  version "0.1.0"
+  dependencies:
+    xmlbuilder "^13.0.2"
 
 "@react-static/scripts@link:../packages/react-static-scripts":
+  version "0.0.0"
+
+"@react-static/scripts@link:..\\packages\\react-static-scripts":
   version "0.1.0"
   dependencies:
     "@react-static/eslint-config" "^0.1.0"
@@ -385,10 +380,6 @@
     webpack "^4.41.2"
     webpack-dev-server "^3.9.0"
     wordwrap "^1.0.0"
-
-"@react-static/scripts@link:..\\packages\\react-static-scripts":
-  version "0.0.0"
-  uid ""
 
 "@types/babel__core@^7.1.0":
   version "7.1.3"
@@ -684,9 +675,9 @@ acorn-walk@^6.0.1:
   integrity sha512-7evsyfH1cLOCdAzZAd43Cic04yKydNx0cF+7tiA19p1XnLLPU4dpCQOqpjqwokFe//vS0QqfqqjCS2JkiIs0cA==
 
 acorn@^5.5.3:
-  version "5.7.3"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
-  integrity sha512-T/zvzYRfbVojPWahDsE5evJdHb3oJoQfFbsrKM7w5Zcs++Tr257tia3BmMP8XYVjp1S9RZXQMh7gao96BlqZOw==
+  version "5.7.4"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.4.tgz#3e8d8a9947d0599a1796d10225d7432f4a4acf5e"
+  integrity sha512-1D++VG7BhrtvQpNbBzovKNc1FLGGEE/oGe7b9xJm/RFHMBeUaUGpluV9RLjZa47YFdPcDAenEYuq9pQPcMdLJg==
 
 acorn@^6.0.1, acorn@^6.2.1:
   version "6.4.0"
@@ -1626,11 +1617,6 @@ concat-stream@^1.5.0:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
-confusing-browser-globals@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/confusing-browser-globals/-/confusing-browser-globals-1.0.9.tgz#72bc13b483c0276801681871d4898516f8f54fdd"
-  integrity sha512-KbS1Y0jMtyPgIxjO7ZzMAuUpAKMt1SzCL9fsrKsX6b0zJPTaT0SiSPmewwVZg9UAO83HVIlEhZF84LIjZ0lmAw==
-
 connect-history-api-fallback@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/connect-history-api-fallback/-/connect-history-api-fallback-1.6.0.tgz#8b32089359308d111115d81cad3fceab888f97bc"
@@ -2291,13 +2277,6 @@ escodegen@^1.9.1:
     optionator "^0.8.1"
   optionalDependencies:
     source-map "~0.6.1"
-
-eslint-plugin-flowtype@4.x:
-  version "4.5.2"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-flowtype/-/eslint-plugin-flowtype-4.5.2.tgz#5353449692663ef70e8fc8c2386cebdecac7e86b"
-  integrity sha512-ByV0EtEQOqiCl6bsrtXtTGnXlIXoyvDrvUq3Nz28huODAhnRDuMotyTrwP+TjAKZMPWbtaNGFHMoUxW3DktGOw==
-  dependencies:
-    lodash "^4.17.15"
 
 eslint-scope@^4.0.3:
   version "4.0.3"
